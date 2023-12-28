@@ -1,0 +1,33 @@
+name: chrysant
+description: "A restaurant management system, written with Flutter."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  flutter_riverpod: ^2.4.9
+  freezed: ^2.4.6
+  freezed_annotation: ^2.4.1
+  json_serializable: ^6.7.1
+  shared_preferences: ^2.2.2
+  gap: ^3.0.1
+  flutter_styled_toast: ^2.2.1
+  riverpod: ^2.4.9
+  flutter_hooks: ^0.20.3
+  hooks_riverpod: ^2.4.9
+  responsive_sizer: ^3.2.0
+  isar: ^3.1.0+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
