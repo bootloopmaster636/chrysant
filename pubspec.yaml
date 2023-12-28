@@ -12,9 +12,6 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   flutter_riverpod: ^2.4.9
-  freezed: ^2.4.6
-  freezed_annotation: ^2.4.1
-  json_serializable: ^6.7.1
   shared_preferences: ^2.2.2
   gap: ^3.0.1
   flutter_styled_toast: ^2.2.1
@@ -23,11 +20,15 @@ dependencies:
   hooks_riverpod: ^2.4.9
   responsive_sizer: ^3.2.0
   isar: ^3.1.0+1
+  build_runner: ^2.4.7
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  isar_generator: ^3.1.0+1
 
 flutter:
   uses-material-design: true
