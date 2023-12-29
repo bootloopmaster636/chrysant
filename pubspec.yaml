@@ -23,6 +23,8 @@ dependencies:
   build_runner: ^2.4.7
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.1
+  logger: ^2.0.2+1
+  riverpod_generator: ^2.3.9
 
 dev_dependencies:
   flutter_test:

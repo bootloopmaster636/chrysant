@@ -1,9 +1,10 @@
 import 'package:chrysant/pages/Layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 void main() {
-  runApp(const App());
+  runApp(const ProviderScope(child: App()));
 }
 
 class App extends StatelessWidget {

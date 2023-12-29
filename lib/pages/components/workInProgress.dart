@@ -10,6 +10,7 @@ class WIP extends StatelessWidget {
       width: 40.w,
       height: 20.h,
       child: const Card(
+        elevation: 2,
         child: Center(
             child: Column(
           mainAxisSize: MainAxisSize.min,

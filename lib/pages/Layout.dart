@@ -19,7 +19,7 @@ class AppLayout extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(0);
+    final selectedIndex = useState(1);
     final navExpanded = useState(false);
 
     return SafeArea(
