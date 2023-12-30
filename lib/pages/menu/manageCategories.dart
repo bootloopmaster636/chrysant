@@ -19,7 +19,7 @@ class CategoryOverlay extends HookConsumerWidget {
       width: 40.w,
       height: 60.h,
       child: Card(
-        elevation: 3,
+        elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(

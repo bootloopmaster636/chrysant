@@ -8,6 +8,7 @@ part 'menu.g.dart';
 class Menu {
   Id id = Isar.autoIncrement;
   String name = "";
+  String? description = "";
   int price = 0;
   final category = IsarLink<Category>();
 }

@@ -25,6 +25,7 @@ dependencies:
   path_provider: ^2.1.1
   logger: ^2.0.2+1
   riverpod_generator: ^2.3.9
+  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_test:
