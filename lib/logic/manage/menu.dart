@@ -19,8 +19,9 @@ class Menus extends _$Menus {
     return _fetchMenus();
   }
 
-  Future<void> addMenu(
-      {required String name,
+  Future<void> modifyMenu(
+      {Id? id,
+      required String name,
       String? description,
       required int price,
       required Category category}) async {
@@ -28,7 +29,8 @@ class Menus extends _$Menus {
 
     state = await AsyncValue.guard(() async {
       final service = MenuService();
-      await service.addMenu(
+      await service.modifyMenu(
+          id: id,
           name: name,
           price: price,
           category: category,
@@ -37,27 +39,7 @@ class Menus extends _$Menus {
     });
   }
 
-  Future editMenu(
-      {required String name,
-      String? description,
-      required int price,
-      required Category category,
-      required Id id}) async {
-    state = const AsyncValue.loading();
-
-    state = await AsyncValue.guard(() async {
-      final service = MenuService();
-      await service.editMenu(
-          newName: name,
-          newPrice: price,
-          newCategory: category,
-          newDescription: description,
-          id: id);
-      return await _fetchMenus();
-    });
-  }
-
-  Future<void> deleteCategory(Id id) async {
+  Future<void> deleteMenu(Id id) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {

@@ -36,8 +36,20 @@ class MenuService {
     }
   }
 
-  Future<void> addMenu(
-      {required String name,
+  Future<Menu> getMenuById(Id id) async {
+    try {
+      final isar = await db;
+      final menu = isar.menus;
+      return menu.where().idEqualTo(id).findFirstSync()!;
+    } catch (e) {
+      Logger().e(e.toString());
+      return Menu();
+    }
+  }
+
+  Future<void> modifyMenu(
+      {Id? id,
+      required String name,
       String? description,
       required int price,
       required Category category}) async {
@@ -48,6 +60,10 @@ class MenuService {
         ..description = description
         ..price = price
         ..category.value = category;
+
+      if (id != null) {
+        newMenu.id = id;
+      }
 
       isar.writeTxnSync(() {
         isar.menus.putSync(newMenu);

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:isar/isar.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../data/models/category.dart';
 import '../../logic/manage/category.dart';
+import '../../logic/manage/menu.dart';
 
 class CategoryOverlay extends HookConsumerWidget {
   const CategoryOverlay({super.key});
@@ -19,7 +20,7 @@ class CategoryOverlay extends HookConsumerWidget {
       width: 40.w,
       height: 60.h,
       child: Card(
-        elevation: 4,
+        elevation: 1,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -59,10 +60,7 @@ class CategoryOverlay extends HookConsumerWidget {
                       child: ListView.builder(
                         itemCount: categories.length,
                         itemBuilder: (context, index) {
-                          return CategoryTile(
-                            name: categories[index].category,
-                            id: categories[index].id,
-                          );
+                          return CategoryTile(category: categories[index]);
                         },
                       ),
                     );
@@ -98,23 +96,49 @@ class NoCategoryNotif extends StatelessWidget {
 }
 
 class CategoryTile extends ConsumerWidget {
-  final String name;
-  final Id id;
+  final Category category;
 
-  const CategoryTile({super.key, required this.name, required this.id});
+  const CategoryTile({super.key, required this.category});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final categoryMenuCount = getMenuCountOnCategory(category, ref);
     return ListTile(
-      title: Text(name),
-      trailing: IconButton(
-        onPressed: () {
-          ref.read(categoriesProvider.notifier).deleteCategory(id);
-        },
-        icon: Icon(Icons.delete_outline,
-            color: Theme.of(context).colorScheme.error),
+      title: Text("${category.category} ($categoryMenuCount item(s))"),
+      trailing: SizedBox(
+        width: 200,
+        child: OutlinedButton(
+          onPressed: () {
+            if (categoryMenuCount == 0) {
+              ref.read(categoriesProvider.notifier).deleteCategory(category.id);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      "Category ${category.category} still has menu(s) in it! Please empty this category first"),
+                ),
+              );
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error),
+              const Gap(8),
+              const Text("Delete Category")
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  int? getMenuCountOnCategory(Category category, WidgetRef ref) {
+    final menuProvider = ref.watch(menusProvider);
+    final menu = menuProvider.value
+        ?.where((element) => element.category.value?.id == category.id);
+    return menu?.length;
   }
 }
 

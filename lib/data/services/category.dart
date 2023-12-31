@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../models/category.dart';
+import '../models/menu.dart';
 
 class CategoryService {
   late Future<Isar> db;
@@ -15,7 +16,7 @@ class CategoryService {
     final dir = await getApplicationSupportDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [CategorySchema],
+        [CategorySchema, MenuSchema],
         directory: dir.path,
         inspector: true,
       );

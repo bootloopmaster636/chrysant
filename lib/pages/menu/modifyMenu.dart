@@ -4,25 +4,35 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:isar/isar.dart';
 
 import '../../logic/manage/category.dart';
 import '../../logic/manage/menu.dart';
 
-class addMenuDialog extends HookConsumerWidget {
-  const addMenuDialog({super.key});
+class modifyMenuDialog extends HookConsumerWidget {
+  final String mode;
+  final Id? id;
+  const modifyMenuDialog({super.key, required this.mode, this.id});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedMenu = mode == "Edit"
+        ? ref.watch(menusProvider).value?.firstWhere(
+              (element) => element.id == id,
+            )
+        : null;
     final categoryProvider = ref.watch(categoriesProvider);
     final formKey = useState(GlobalKey<FormState>());
-    final nameCtl = useTextEditingController();
-    final descriptionCtl = useTextEditingController();
-    final priceCtl = useTextEditingController();
+    final nameCtl = useTextEditingController(text: selectedMenu?.name ?? "");
+    final descriptionCtl =
+        useTextEditingController(text: selectedMenu?.description ?? "");
+    final priceCtl =
+        useTextEditingController(text: selectedMenu?.price.toString() ?? "");
     final categoryCtl = useState(ref.read(categoriesProvider).value?.first);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Menu"),
+        title: Text("$mode Menu"),
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
@@ -99,7 +109,8 @@ class addMenuDialog extends HookConsumerWidget {
                         child: FilledButton(
                           onPressed: () {
                             if (formKey.value.currentState!.validate()) {
-                              ref.read(menusProvider.notifier).addMenu(
+                              ref.read(menusProvider.notifier).modifyMenu(
+                                  id: selectedMenu?.id,
                                   name: nameCtl.text,
                                   description: descriptionCtl.text,
                                   price: int.parse(priceCtl.text),
