@@ -11,6 +11,5 @@ class Order {
   int? tableNumber;
   bool isDineIn = false;
   DateTime? orderedAt;
-  DateTime? paidAt;
   final items = IsarLinks<Menu>();
 }
