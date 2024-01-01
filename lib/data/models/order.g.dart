@@ -47,6 +47,11 @@ const OrderSchema = CollectionSchema(
       id: 5,
       name: r'tableNumber',
       type: IsarType.long,
+    ),
+    r'totalPrice': PropertySchema(
+      id: 6,
+      name: r'totalPrice',
+      type: IsarType.long,
     )
   },
   estimateSize: _orderEstimateSize,
@@ -77,7 +82,12 @@ int _orderEstimateSize(
       bytesCount += OrderMenuSchema.estimateSize(value, offsets, allOffsets);
     }
   }
-  bytesCount += 3 + object.name.length * 3;
+  {
+    final value = object.name;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -98,6 +108,7 @@ void _orderSerialize(
   writer.writeDateTime(offsets[3], object.orderedAt);
   writer.writeDateTime(offsets[4], object.paidAt);
   writer.writeLong(offsets[5], object.tableNumber);
+  writer.writeLong(offsets[6], object.totalPrice);
 }
 
 Order _orderDeserialize(
@@ -116,10 +127,11 @@ Order _orderDeserialize(
         OrderMenu(),
       ) ??
       [];
-  object.name = reader.readString(offsets[2]);
+  object.name = reader.readStringOrNull(offsets[2]);
   object.orderedAt = reader.readDateTimeOrNull(offsets[3]);
   object.paidAt = reader.readDateTimeOrNull(offsets[4]);
   object.tableNumber = reader.readLongOrNull(offsets[5]);
+  object.totalPrice = reader.readLong(offsets[6]);
   return object;
 }
 
@@ -141,13 +153,15 @@ P _orderDeserializeProp<P>(
           ) ??
           []) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
       return (reader.readLongOrNull(offset)) as P;
+    case 6:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -387,8 +401,24 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Order, Order, QAfterFilterCondition> nameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'name',
+      ));
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterFilterCondition> nameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'name',
+      ));
+    });
+  }
+
   QueryBuilder<Order, Order, QAfterFilterCondition> nameEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -401,7 +431,7 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
   }
 
   QueryBuilder<Order, Order, QAfterFilterCondition> nameGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -416,7 +446,7 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
   }
 
   QueryBuilder<Order, Order, QAfterFilterCondition> nameLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -431,8 +461,8 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
   }
 
   QueryBuilder<Order, Order, QAfterFilterCondition> nameBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -721,6 +751,59 @@ extension OrderQueryFilter on QueryBuilder<Order, Order, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Order, Order, QAfterFilterCondition> totalPriceEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalPrice',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterFilterCondition> totalPriceGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalPrice',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterFilterCondition> totalPriceLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalPrice',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterFilterCondition> totalPriceBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension OrderQueryObject on QueryBuilder<Order, Order, QFilterCondition> {
@@ -792,6 +875,18 @@ extension OrderQuerySortBy on QueryBuilder<Order, Order, QSortBy> {
   QueryBuilder<Order, Order, QAfterSortBy> sortByTableNumberDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tableNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterSortBy> sortByTotalPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterSortBy> sortByTotalPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalPrice', Sort.desc);
     });
   }
 }
@@ -868,6 +963,18 @@ extension OrderQuerySortThenBy on QueryBuilder<Order, Order, QSortThenBy> {
       return query.addSortBy(r'tableNumber', Sort.desc);
     });
   }
+
+  QueryBuilder<Order, Order, QAfterSortBy> thenByTotalPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Order, Order, QAfterSortBy> thenByTotalPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalPrice', Sort.desc);
+    });
+  }
 }
 
 extension OrderQueryWhereDistinct on QueryBuilder<Order, Order, QDistinct> {
@@ -901,6 +1008,12 @@ extension OrderQueryWhereDistinct on QueryBuilder<Order, Order, QDistinct> {
       return query.addDistinctBy(r'tableNumber');
     });
   }
+
+  QueryBuilder<Order, Order, QDistinct> distinctByTotalPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalPrice');
+    });
+  }
 }
 
 extension OrderQueryProperty on QueryBuilder<Order, Order, QQueryProperty> {
@@ -922,7 +1035,7 @@ extension OrderQueryProperty on QueryBuilder<Order, Order, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Order, String, QQueryOperations> nameProperty() {
+  QueryBuilder<Order, String?, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
     });
@@ -943,6 +1056,12 @@ extension OrderQueryProperty on QueryBuilder<Order, Order, QQueryProperty> {
   QueryBuilder<Order, int?, QQueryOperations> tableNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'tableNumber');
+    });
+  }
+
+  QueryBuilder<Order, int, QQueryOperations> totalPriceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalPrice');
     });
   }
 }
