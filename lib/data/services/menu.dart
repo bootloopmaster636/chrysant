@@ -59,7 +59,7 @@ class MenuService {
         ..name = name
         ..description = description
         ..price = price
-        ..category.value = category;
+        ..category = category.category;
 
       if (id != null) {
         newMenu.id = id;
@@ -85,7 +85,7 @@ class MenuService {
         ..name = newName
         ..description = newDescription
         ..price = newPrice
-        ..category.value = newCategory
+        ..category = newCategory.category
         ..id = id;
 
       isar.writeTxnSync(() {

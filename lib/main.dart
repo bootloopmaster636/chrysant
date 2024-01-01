@@ -1,4 +1,4 @@
-import 'package:chrysant/pages/Layout.dart';
+import 'package:chrysant/pages/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';

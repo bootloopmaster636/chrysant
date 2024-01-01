@@ -1,4 +1,3 @@
-import 'package:chrysant/data/models/category.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -8,8 +7,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../constants.dart';
 import '../../logic/manage/category.dart';
 import '../../logic/manage/menu.dart';
-import 'manageCategories.dart';
-import 'modifyMenu.dart';
+import 'manage_categories.dart';
+import 'modify_menu.dart';
 
 class MenuPage extends HookConsumerWidget {
   const MenuPage({super.key});
@@ -79,26 +78,28 @@ class MenuContents extends HookConsumerWidget {
                       ),
                       const Spacer(),
                       FilledButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              useSafeArea: true,
-                              enableDrag: true,
-                              isScrollControlled: true,
-                              builder: (context) {
-                                return ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: ConstrainedBox(
-                                    constraints:
-                                        BoxConstraints(maxHeight: 80.h),
-                                    child: const modifyMenuDialog(
-                                      mode: "Add",
-                                    ),
-                                  ),
-                                );
-                              },
-                              context: context,
-                            );
-                          },
+                          onPressed: categoryProvider.value?.length != 0
+                              ? () {
+                                  showModalBottomSheet(
+                                    useSafeArea: true,
+                                    enableDrag: true,
+                                    isScrollControlled: true,
+                                    builder: (context) {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: ConstrainedBox(
+                                          constraints:
+                                              BoxConstraints(maxHeight: 80.h),
+                                          child: const ModifyMenuDialog(
+                                            mode: "Add",
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    context: context,
+                                  );
+                                }
+                              : null,
                           child: const Row(
                             children: [
                               Icon(Icons.add),
@@ -118,7 +119,7 @@ class MenuContents extends HookConsumerWidget {
                                   data: (menus) {
                                     final filteredMenus = menus
                                         .where((element) =>
-                                            element.category.value?.id == e.id)
+                                            element.category == e.category)
                                         .toList();
                                     return filteredMenus.isNotEmpty
                                         ? SingleChildScrollView(
@@ -130,8 +131,6 @@ class MenuContents extends HookConsumerWidget {
                                                         price: e.price,
                                                         description:
                                                             e.description,
-                                                        category:
-                                                            e.category.value!,
                                                       ))
                                                   .toList(),
                                             ),
@@ -169,21 +168,20 @@ class MenuTile extends ConsumerWidget {
   final String name;
   final int price;
   final String? description;
-  final Category category;
 
-  const MenuTile(
-      {super.key,
-      required this.id,
-      required this.name,
-      required this.price,
-      required this.description,
-      required this.category});
+  const MenuTile({
+    super.key,
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.description,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       height: 140,
-      width: 30.w,
+      width: Device.orientation == Orientation.landscape ? 30.w : 40.w,
       child: Card(
           elevation: 1,
           child: Padding(
@@ -234,7 +232,7 @@ class MenuTile extends ConsumerWidget {
                                   child: ConstrainedBox(
                                     constraints:
                                         BoxConstraints(maxHeight: 80.h),
-                                    child: modifyMenuDialog(
+                                    child: ModifyMenuDialog(
                                       mode: "Edit",
                                       id: id,
                                     ),

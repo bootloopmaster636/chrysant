@@ -9,10 +9,10 @@ import 'package:isar/isar.dart';
 import '../../logic/manage/category.dart';
 import '../../logic/manage/menu.dart';
 
-class modifyMenuDialog extends HookConsumerWidget {
+class ModifyMenuDialog extends HookConsumerWidget {
   final String mode;
   final Id? id;
-  const modifyMenuDialog({super.key, required this.mode, this.id});
+  const ModifyMenuDialog({super.key, required this.mode, this.id});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

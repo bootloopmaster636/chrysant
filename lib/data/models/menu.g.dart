@@ -17,18 +17,23 @@ const MenuSchema = CollectionSchema(
   name: r'Menu',
   id: 7788867320905599406,
   properties: {
-    r'description': PropertySchema(
+    r'category': PropertySchema(
       id: 0,
+      name: r'category',
+      type: IsarType.string,
+    ),
+    r'description': PropertySchema(
+      id: 1,
       name: r'description',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'name',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'price',
       type: IsarType.long,
     )
@@ -39,14 +44,7 @@ const MenuSchema = CollectionSchema(
   deserializeProp: _menuDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {
-    r'category': LinkSchema(
-      id: -9018492421691052600,
-      name: r'category',
-      target: r'Category',
-      single: true,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _menuGetId,
   getLinks: _menuGetLinks,
@@ -60,6 +58,7 @@ int _menuEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.category.length * 3;
   {
     final value = object.description;
     if (value != null) {
@@ -76,9 +75,10 @@ void _menuSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.description);
-  writer.writeString(offsets[1], object.name);
-  writer.writeLong(offsets[2], object.price);
+  writer.writeString(offsets[0], object.category);
+  writer.writeString(offsets[1], object.description);
+  writer.writeString(offsets[2], object.name);
+  writer.writeLong(offsets[3], object.price);
 }
 
 Menu _menuDeserialize(
@@ -88,10 +88,11 @@ Menu _menuDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Menu();
-  object.description = reader.readStringOrNull(offsets[0]);
+  object.category = reader.readString(offsets[0]);
+  object.description = reader.readStringOrNull(offsets[1]);
   object.id = id;
-  object.name = reader.readString(offsets[1]);
-  object.price = reader.readLong(offsets[2]);
+  object.name = reader.readString(offsets[2]);
+  object.price = reader.readLong(offsets[3]);
   return object;
 }
 
@@ -103,10 +104,12 @@ P _menuDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
-    case 1:
       return (reader.readString(offset)) as P;
+    case 1:
+      return (reader.readStringOrNull(offset)) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -118,12 +121,11 @@ Id _menuGetId(Menu object) {
 }
 
 List<IsarLinkBase<dynamic>> _menuGetLinks(Menu object) {
-  return [object.category];
+  return [];
 }
 
 void _menuAttach(IsarCollection<dynamic> col, Id id, Menu object) {
   object.id = id;
-  object.category.attach(col, col.isar.collection<Category>(), r'category', id);
 }
 
 extension MenuQueryWhereSort on QueryBuilder<Menu, Menu, QWhere> {
@@ -202,6 +204,135 @@ extension MenuQueryWhere on QueryBuilder<Menu, Menu, QWhereClause> {
 }
 
 extension MenuQueryFilter on QueryBuilder<Menu, Menu, QFilterCondition> {
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'category',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'category',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'category',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'category',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'category',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'category',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'category',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'category',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'category',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'category',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Menu, Menu, QAfterFilterCondition> descriptionIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -583,22 +714,21 @@ extension MenuQueryFilter on QueryBuilder<Menu, Menu, QFilterCondition> {
 
 extension MenuQueryObject on QueryBuilder<Menu, Menu, QFilterCondition> {}
 
-extension MenuQueryLinks on QueryBuilder<Menu, Menu, QFilterCondition> {
-  QueryBuilder<Menu, Menu, QAfterFilterCondition> category(
-      FilterQuery<Category> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'category');
-    });
-  }
-
-  QueryBuilder<Menu, Menu, QAfterFilterCondition> categoryIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'category', 0, true, 0, true);
-    });
-  }
-}
+extension MenuQueryLinks on QueryBuilder<Menu, Menu, QFilterCondition> {}
 
 extension MenuQuerySortBy on QueryBuilder<Menu, Menu, QSortBy> {
+  QueryBuilder<Menu, Menu, QAfterSortBy> sortByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterSortBy> sortByCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
   QueryBuilder<Menu, Menu, QAfterSortBy> sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -637,6 +767,18 @@ extension MenuQuerySortBy on QueryBuilder<Menu, Menu, QSortBy> {
 }
 
 extension MenuQuerySortThenBy on QueryBuilder<Menu, Menu, QSortThenBy> {
+  QueryBuilder<Menu, Menu, QAfterSortBy> thenByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Menu, Menu, QAfterSortBy> thenByCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
   QueryBuilder<Menu, Menu, QAfterSortBy> thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -687,6 +829,13 @@ extension MenuQuerySortThenBy on QueryBuilder<Menu, Menu, QSortThenBy> {
 }
 
 extension MenuQueryWhereDistinct on QueryBuilder<Menu, Menu, QDistinct> {
+  QueryBuilder<Menu, Menu, QDistinct> distinctByCategory(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'category', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Menu, Menu, QDistinct> distinctByDescription(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -712,6 +861,12 @@ extension MenuQueryProperty on QueryBuilder<Menu, Menu, QQueryProperty> {
   QueryBuilder<Menu, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Menu, String, QQueryOperations> categoryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'category');
     });
   }
 

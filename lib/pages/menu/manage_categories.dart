@@ -137,7 +137,7 @@ class CategoryTile extends ConsumerWidget {
   int? getMenuCountOnCategory(Category category, WidgetRef ref) {
     final menuProvider = ref.watch(menusProvider);
     final menu = menuProvider.value
-        ?.where((element) => element.category.value?.id == category.id);
+        ?.where((element) => element.category == category.category);
     return menu?.length;
   }
 }

@@ -1,15 +1,23 @@
 import 'package:isar/isar.dart';
 
-import 'menu.dart';
-
 part 'order.g.dart';
 
 @collection
 class Order {
   Id id = Isar.autoIncrement;
-  String? name;
+  String name = "";
   int? tableNumber;
   bool isDineIn = false;
   DateTime? orderedAt;
-  final items = IsarLinks<Menu>();
+  DateTime? paidAt;
+  List<OrderMenu> items = [];
+}
+
+@embedded
+class OrderMenu {
+  String name = "";
+  String? description = "";
+  int price = 0;
+  int quantity = 0;
+  String category = "";
 }

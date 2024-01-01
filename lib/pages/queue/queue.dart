@@ -3,7 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../components/workInProgress.dart';
+import '../components/work_in_progress.dart';
 
 class QueuePage extends HookConsumerWidget {
   const QueuePage({
@@ -16,7 +16,7 @@ class QueuePage extends HookConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         //main screen
-        Container(
+        SizedBox(
           width: 40.w,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
