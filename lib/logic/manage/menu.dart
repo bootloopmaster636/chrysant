@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:chrysant/data/models/category.dart';
 import 'package:chrysant/data/services/menu.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:isar/isar.dart';
@@ -30,7 +29,7 @@ class Menus extends _$Menus {
       required String name,
       String? description,
       required int price,
-      required Category category}) async {
+      required String category}) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
@@ -54,6 +53,24 @@ class Menus extends _$Menus {
           price: price,
           category: category,
           description: description);
+      return await _fetchMenus();
+    });
+  }
+
+  Future<void> deleteCurrentImage(Menu menu) async {
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() async {
+      File oldFile = File(menu.imagePath);
+      await oldFile.delete();
+
+      await modifyMenu(
+          name: menu.name,
+          price: menu.price,
+          category: menu.category,
+          description: menu.description,
+          id: menu.id,
+          image: XFile(""));
       return await _fetchMenus();
     });
   }

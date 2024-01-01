@@ -53,7 +53,7 @@ class MenuService {
       String? description,
       String imagePath = "",
       required int price,
-      required Category category}) async {
+      required String category}) async {
     try {
       final isar = await db;
       final newMenu = Menu()
@@ -61,7 +61,7 @@ class MenuService {
         ..description = description
         ..imagePath = imagePath
         ..price = price
-        ..category = category.category;
+        ..category = category;
 
       if (id != null) {
         newMenu.id = id;

@@ -76,6 +76,11 @@ class ModifyMenuDialog extends HookConsumerWidget {
                           final ImagePicker picker = ImagePicker();
                           final XFile? image = await picker.pickImage(
                               source: ImageSource.gallery);
+                          if (imageCtl.value.path != "") {
+                            ref
+                                .read(menusProvider.notifier)
+                                .deleteCurrentImage(selectedMenu!);
+                          }
                           imageCtl.value = image ?? XFile("");
                         },
                         style: FilledButton.styleFrom(
@@ -92,6 +97,11 @@ class ModifyMenuDialog extends HookConsumerWidget {
                           final ImagePicker picker = ImagePicker();
                           final XFile? image = await picker.pickImage(
                               source: ImageSource.camera);
+                          if (imageCtl.value.path != "") {
+                            ref
+                                .read(menusProvider.notifier)
+                                .deleteCurrentImage(selectedMenu!);
+                          }
                           imageCtl.value = image ?? XFile("");
                         },
                         style: OutlinedButton.styleFrom(
@@ -109,6 +119,11 @@ class ModifyMenuDialog extends HookConsumerWidget {
                             const Gap(8),
                             IconButton(
                               onPressed: () {
+                                if (imageCtl.value.path != "") {
+                                  ref
+                                      .read(menusProvider.notifier)
+                                      .deleteCurrentImage(selectedMenu!);
+                                }
                                 imageCtl.value = XFile("");
                               },
                               icon: Icon(
@@ -185,7 +200,7 @@ class ModifyMenuDialog extends HookConsumerWidget {
                               name: nameCtl.text,
                               description: descriptionCtl.text,
                               price: int.parse(priceCtl.text),
-                              category: categoryCtl.value!);
+                              category: categoryCtl.value?.category ?? "");
                           Navigator.pop(context);
                         }
                       },
