@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -127,6 +129,7 @@ class MenuContents extends HookConsumerWidget {
                                               children: filteredMenus
                                                   .map((e) => MenuTile(
                                                         id: e.id,
+                                                        imagePath: e.imagePath,
                                                         name: e.name,
                                                         price: e.price,
                                                         description:
@@ -165,6 +168,7 @@ class MenuContents extends HookConsumerWidget {
 
 class MenuTile extends ConsumerWidget {
   final Id id;
+  final String imagePath;
   final String name;
   final int price;
   final String? description;
@@ -172,6 +176,7 @@ class MenuTile extends ConsumerWidget {
   const MenuTile({
     super.key,
     required this.id,
+    required this.imagePath,
     required this.name,
     required this.price,
     required this.description,
@@ -187,8 +192,21 @@ class MenuTile extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: imagePath != ""
+                      ? Image.file(File(imagePath), fit: BoxFit.cover)
+                      : const Icon(Icons.no_photography_outlined),
+                ),
+                const Gap(16),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,

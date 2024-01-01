@@ -17,8 +17,6 @@ class Order {
 @embedded
 class OrderMenu {
   String name = "";
-  String? description = "";
   int price = 0;
   int quantity = 0;
-  String category = "";
 }

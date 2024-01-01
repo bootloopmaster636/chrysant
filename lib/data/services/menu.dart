@@ -51,6 +51,7 @@ class MenuService {
       {Id? id,
       required String name,
       String? description,
+      String imagePath = "",
       required int price,
       required Category category}) async {
     try {
@@ -58,6 +59,7 @@ class MenuService {
       final newMenu = Menu()
         ..name = name
         ..description = description
+        ..imagePath = imagePath
         ..price = price
         ..category = category.category;
 
@@ -67,29 +69,6 @@ class MenuService {
 
       isar.writeTxnSync(() {
         isar.menus.putSync(newMenu);
-      });
-    } catch (e) {
-      Logger().e(e.toString());
-    }
-  }
-
-  Future<void> editMenu(
-      {required String newName,
-      String? newDescription,
-      required int newPrice,
-      required Category newCategory,
-      required Id id}) async {
-    try {
-      final isar = await db;
-      final menu = Menu()
-        ..name = newName
-        ..description = newDescription
-        ..price = newPrice
-        ..category = newCategory.category
-        ..id = id;
-
-      isar.writeTxnSync(() {
-        isar.menus.putSync(menu);
       });
     } catch (e) {
       Logger().e(e.toString());

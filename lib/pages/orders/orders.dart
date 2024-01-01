@@ -20,15 +20,12 @@ final Order example1 = Order()
   ..items = [
     OrderMenu()
       ..name = "Chicken Chop"
-      ..description = "Chicken Chop with fries"
       ..price = 10
-      ..quantity = 1
-      ..category = "Main",
+      ..quantity = 1,
     OrderMenu()
       ..name = "Coke"
       ..price = 2
       ..quantity = 1
-      ..category = "Drinks",
   ];
 final Order example2 = Order()
   ..id = 2
@@ -40,8 +37,7 @@ final Order example2 = Order()
     OrderMenu()
       ..name = "Soto Ayam"
       ..price = 10000
-      ..quantity = 1
-      ..category = "Main",
+      ..quantity = 1,
   ];
 
 final List<Order> orders = [example1, example2];
