@@ -183,26 +183,30 @@ class OrderTile extends HookConsumerWidget {
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Table"),
+                        const Text(
+                          "Table",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text(
                           order.tableNumber.toString().padLeft(2, "0"),
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         )
                       ],
                     )
-                  : Column(
+                  : const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           "Take",
                           style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary),
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           "away",
                           style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary),
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -212,8 +216,7 @@ class OrderTile extends HookConsumerWidget {
                 children: [
                   Text(
                     "Total $currency ${order.totalPrice}",
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.start,
                   ),
                   const Gap(4),
@@ -282,7 +285,8 @@ class OrderDetails extends HookConsumerWidget {
                 child: ListTile(
                   title: Text(
                     "${order.items[index].name} (x${order.items[index].quantity})",
-                    style: const TextStyle(fontSize: 18),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
                     "@ $currency ${order.items[index].price}",
