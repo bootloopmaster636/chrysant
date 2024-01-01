@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chrysant/data/models/menu.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -68,73 +69,7 @@ class ModifyMenuDialog extends HookConsumerWidget {
                               )),
                   ),
                   const Gap(8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FilledButton(
-                        onPressed: () async {
-                          final ImagePicker picker = ImagePicker();
-                          final XFile? image = await picker.pickImage(
-                              source: ImageSource.gallery);
-                          if (imageCtl.value.path != "") {
-                            ref
-                                .read(menusProvider.notifier)
-                                .deleteCurrentImage(selectedMenu!);
-                          }
-                          imageCtl.value = image ?? XFile("");
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onSecondary,
-                        ),
-                        child: const Text("Choose from gallery"),
-                      ),
-                      const Gap(8),
-                      OutlinedButton(
-                        onPressed: () async {
-                          final ImagePicker picker = ImagePicker();
-                          final XFile? image = await picker.pickImage(
-                              source: ImageSource.camera);
-                          if (imageCtl.value.path != "") {
-                            ref
-                                .read(menusProvider.notifier)
-                                .deleteCurrentImage(selectedMenu!);
-                          }
-                          imageCtl.value = image ?? XFile("");
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                          foregroundColor:
-                              Theme.of(context).colorScheme.secondary,
-                        ),
-                        child: const Text("Take a picture"),
-                      ),
-                      if (imageCtl.value.path != "")
-                        Row(
-                          children: [
-                            const Gap(8),
-                            IconButton(
-                              onPressed: () {
-                                if (imageCtl.value.path != "") {
-                                  ref
-                                      .read(menusProvider.notifier)
-                                      .deleteCurrentImage(selectedMenu!);
-                                }
-                                imageCtl.value = XFile("");
-                              },
-                              icon: Icon(
-                                Icons.delete_outlined,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
+                  ImageSelector(imageCtl: imageCtl, selectedMenu: selectedMenu),
                   TextFormField(
                     controller: nameCtl,
                     decoration: const InputDecoration(
@@ -213,6 +148,85 @@ class ModifyMenuDialog extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class ImageSelector extends ConsumerWidget {
+  const ImageSelector({
+    super.key,
+    required this.imageCtl,
+    required this.selectedMenu,
+  });
+
+  final ValueNotifier<XFile> imageCtl;
+  final Menu? selectedMenu;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FilledButton(
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            final XFile? image =
+                await picker.pickImage(source: ImageSource.gallery);
+            if (imageCtl.value.path != "") {
+              ref
+                  .read(menusProvider.notifier)
+                  .deleteCurrentImage(selectedMenu!);
+            }
+            imageCtl.value = image ?? XFile("");
+          },
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            foregroundColor: Theme.of(context).colorScheme.onSecondary,
+          ),
+          child: const Text("Choose from gallery"),
+        ),
+        const Gap(8),
+        OutlinedButton(
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            final XFile? image =
+                await picker.pickImage(source: ImageSource.camera);
+            if (imageCtl.value.path != "") {
+              ref
+                  .read(menusProvider.notifier)
+                  .deleteCurrentImage(selectedMenu!);
+            }
+            imageCtl.value = image ?? XFile("");
+          },
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            foregroundColor: Theme.of(context).colorScheme.secondary,
+          ),
+          child: const Text("Take a picture"),
+        ),
+        if (imageCtl.value.path != "")
+          Row(
+            children: [
+              const Gap(8),
+              IconButton(
+                onPressed: () {
+                  if (imageCtl.value.path != "") {
+                    ref
+                        .read(menusProvider.notifier)
+                        .deleteCurrentImage(selectedMenu!);
+                  }
+                  imageCtl.value = XFile("");
+                },
+                icon: Icon(
+                  Icons.delete_outlined,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 }
