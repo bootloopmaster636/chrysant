@@ -19,24 +19,10 @@ class App extends StatelessWidget {
           colorSchemeSeed: Colors.red,
           useMaterial3: true,
         ),
-        builder: (context, child) {
-          return ScrollConfiguration(
-            behavior: const ScrollBehaviorModif(),
-            child: child!,
-          );
-        },
         home: ResponsiveSizer(
           builder: (context, orientation, screenType) {
             return const AppLayout();
           },
         ));
   }
-}
-
-class ScrollBehaviorModif extends ScrollBehavior {
-  const ScrollBehaviorModif();
-
-  @override
-  ScrollPhysics getScrollPhysics(BuildContext context) =>
-      const BouncingScrollPhysics();
 }
