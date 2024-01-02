@@ -14,19 +14,66 @@ const contentMain = <Widget>[
   AnalyticPage(),
 ];
 
-class AppLayout extends HookConsumerWidget {
+class AppLayout extends HookWidget {
   const AppLayout({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final selectedIndex = useState(1);
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < 600) {
+        return MobileAppLayout(
+          selectedIndex: selectedIndex,
+        );
+      } else {
+        return TabletAppLayout(
+          selectedIndex: selectedIndex,
+        );
+      }
+    });
+  }
+}
+
+class MobileAppLayout extends HookConsumerWidget {
+  final ValueNotifier<int> selectedIndex;
+  const MobileAppLayout({super.key, required this.selectedIndex});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: contentMain[selectedIndex.value],
+      bottomNavigationBar: NavigationBar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        onDestinationSelected: (int index) {
+          selectedIndex.value = index;
+        },
+        selectedIndex: selectedIndex.value,
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
+          NavigationDestination(
+              icon: Icon(Icons.library_books_outlined), label: 'Orders'),
+          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Menu'),
+          NavigationDestination(
+              icon: Icon(Icons.show_chart), label: 'Analytics'),
+        ],
+      ),
+    );
+  }
+}
+
+class TabletAppLayout extends HookConsumerWidget {
+  final ValueNotifier<int> selectedIndex;
+  const TabletAppLayout({super.key, required this.selectedIndex});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final navExpanded = useState(false);
 
     return SafeArea(
       child: Container(
         width: double.infinity,
         height: double.infinity,
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: Theme.of(context).colorScheme.background,
         child: Row(
           children: [
             //nav

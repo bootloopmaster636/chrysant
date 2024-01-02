@@ -57,7 +57,7 @@ class OrdersPage extends HookConsumerWidget {
       children: [
         //main screen
         SizedBox(
-          width: 40.w,
+          width: Device.screenType == ScreenType.tablet ? 40.w : 100.w,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -66,50 +66,48 @@ class OrdersPage extends HookConsumerWidget {
                 title: const Text("Manage Orders"),
               ),
               Expanded(
-                child: Card(
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: OrderList(
-                          selectedOrderId: selectedOrderId,
-                        ),
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: OrderList(
+                        selectedOrderId: selectedOrderId,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: FloatingActionButton(
-                          onPressed: () {},
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          child: const Icon(Icons.add),
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: FloatingActionButton(
+                        onPressed: () {},
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        child: const Icon(Icons.add),
+                      ),
+                    )
+                  ],
                 ),
               ),
             ],
           ),
         ),
 
-        //second screen
-        const Gap(4),
-        Expanded(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: selectedOrderId.value == -1
-                  ? const NoOrderSelectedNotif()
-                  : OrderDetails(
-                      order: orders
-                          .where((order) => order.id == selectedOrderId.value)
-                          .first),
+        //second screen on tablet screen and above
+        if (Device.screenType == ScreenType.tablet) const Gap(4),
+        if (Device.screenType == ScreenType.tablet)
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: selectedOrderId.value == -1
+                    ? const NoOrderSelectedNotif()
+                    : OrderDetails(
+                        order: orders
+                            .where((order) => order.id == selectedOrderId.value)
+                            .first),
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -142,13 +140,16 @@ class OrderList extends HookConsumerWidget {
     return ListView(
       children: orders
           .map(
-            (order) => InkWell(
-              onTap: () {
-                selectedOrderId.value = order.id;
-              },
-              child: OrderTile(
-                  order: order,
-                  isSelected: order.id == selectedOrderId.value ? true : false),
+            (order) => Material(
+              child: InkWell(
+                onTap: () {
+                  selectedOrderId.value = order.id;
+                },
+                child: OrderTile(
+                    order: order,
+                    isSelected:
+                        order.id == selectedOrderId.value ? true : false),
+              ),
             ),
           )
           .toList(),

@@ -16,7 +16,7 @@ class App extends StatelessWidget {
     return MaterialApp(
         title: 'Chrysant',
         theme: ThemeData(
-          colorSchemeSeed: Colors.red,
+          colorSchemeSeed: Colors.cyan,
           useMaterial3: true,
         ),
         home: ResponsiveSizer(

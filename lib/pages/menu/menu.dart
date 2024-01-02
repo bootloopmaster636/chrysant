@@ -186,7 +186,7 @@ class MenuTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       height: 140,
-      width: Device.orientation == Orientation.landscape ? 30.w : 40.w,
+      width: Device.screenType == ScreenType.mobile ? 100.w : 30.w,
       child: Card(
           elevation: 1,
           child: Padding(
