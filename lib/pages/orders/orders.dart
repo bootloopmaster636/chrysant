@@ -8,6 +8,7 @@ import 'package:isar/isar.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../data/models/order.dart';
+import 'modify_order.dart';
 
 // TODO temp data for testing purposes only
 final Order example1 = Order()
@@ -78,7 +79,14 @@ class OrdersPage extends HookConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: FloatingActionButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ModifyOrderPage(),
+                            ),
+                          );
+                        },
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor:
                             Theme.of(context).colorScheme.onPrimary,
@@ -236,7 +244,14 @@ class OrderTile extends HookConsumerWidget {
               ),
               const Spacer(),
               FilledButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ModifyOrderPage(id: order.id),
+                    ),
+                  );
+                },
                 style: FilledButton.styleFrom(
                   elevation: 3,
                   backgroundColor:

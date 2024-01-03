@@ -28,6 +28,7 @@ dependencies:
   dropdown_button2: ^2.3.9
   riverpod_annotation: ^2.3.3
   image_picker: ^1.0.5
+  text_scroll: ^0.2.0
 
 dev_dependencies:
   flutter_test:

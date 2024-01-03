@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:isar/isar.dart';
+import 'package:logger/logger.dart';
 
 import '../../constants.dart';
 import '../../logic/manage/category.dart';
@@ -172,7 +173,7 @@ class ImageSelector extends ConsumerWidget {
             final ImagePicker picker = ImagePicker();
             final XFile? image =
                 await picker.pickImage(source: ImageSource.gallery);
-            if (imageCtl.value.path != "") {
+            if (selectedMenu?.imagePath != "" && selectedMenu != null) {
               ref
                   .read(menusProvider.notifier)
                   .deleteCurrentImage(selectedMenu!);
@@ -191,7 +192,8 @@ class ImageSelector extends ConsumerWidget {
             final ImagePicker picker = ImagePicker();
             final XFile? image =
                 await picker.pickImage(source: ImageSource.camera);
-            if (imageCtl.value.path != "") {
+            if (selectedMenu?.imagePath != "" && selectedMenu != null) {
+              Logger().d("Deleting image on ${selectedMenu?.imagePath}");
               ref
                   .read(menusProvider.notifier)
                   .deleteCurrentImage(selectedMenu!);
@@ -206,13 +208,13 @@ class ImageSelector extends ConsumerWidget {
           ),
           child: const Text("Take a picture"),
         ),
-        if (imageCtl.value.path != "")
+        if (imageCtl.value.path != "" || selectedMenu?.imagePath != null)
           Row(
             children: [
               const Gap(8),
               IconButton(
                 onPressed: () {
-                  if (imageCtl.value.path != "") {
+                  if (selectedMenu?.imagePath != "" && selectedMenu != null) {
                     ref
                         .read(menusProvider.notifier)
                         .deleteCurrentImage(selectedMenu!);
