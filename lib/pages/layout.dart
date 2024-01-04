@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../constants.dart';
 import 'analytic/analytics.dart';
 import 'home/home.dart';
 
@@ -21,7 +22,7 @@ class AppLayout extends HookWidget {
   Widget build(BuildContext context) {
     final selectedIndex = useState(1);
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 600) {
+      if (constraints.maxWidth < tabletWidth) {
         return MobileAppLayout(
           selectedIndex: selectedIndex,
         );

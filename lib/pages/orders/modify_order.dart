@@ -26,7 +26,7 @@ class ModifyOrderPage extends HookWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < 600) {
+        if (constraints.maxWidth < tabletWidth) {
           return MobileLayout(
             id: id,
             order: tempOrder,
@@ -122,7 +122,7 @@ class MenuTile extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      if (constraint.maxWidth < 600) {
+      if (constraint.maxWidth < tabletWidth) {
         return FractionallySizedBox(
           widthFactor: 0.48,
           child: Container(

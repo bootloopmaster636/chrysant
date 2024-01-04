@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class WIP extends StatelessWidget {
   const WIP({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 40.w,
-      height: 20.h,
-      child: const Card(
+    return const SizedBox(
+      width: 380,
+      height: 160,
+      child: Card(
         elevation: 2,
         child: Center(
             child: Column(

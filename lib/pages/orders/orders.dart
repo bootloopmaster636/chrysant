@@ -51,7 +51,7 @@ class OrdersPage extends HookWidget {
     final selectedOrderId =
         useState(-1); // selectedOrderId -1 is nothing selected
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 600) {
+      if (constraints.maxWidth < tabletWidth) {
         return OrdersPageMobile(
           selectedOrderId: selectedOrderId,
         );
@@ -78,8 +78,8 @@ class OrdersPageMobile extends HookConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Orders"),
-          bottom: TabBar(
-            tabs: const [
+          bottom: const TabBar(
+            tabs: [
               Tab(text: "Orders"),
               Tab(text: "Order Details"),
             ],
@@ -115,7 +115,8 @@ class OrdersPageTablet extends HookConsumerWidget {
               AppBar(
                 title: const Text("Orders"),
               ),
-              Expanded(child: OrderListScreen(selectedOrderId: selectedOrderId)),
+              Expanded(
+                  child: OrderListScreen(selectedOrderId: selectedOrderId)),
             ],
           ),
         ),
