@@ -43,79 +43,148 @@ final Order example2 = Order()
 
 final List<Order> orders = [example1, example2];
 
-class OrdersPage extends HookConsumerWidget {
-  const OrdersPage({
+class OrdersPage extends HookWidget {
+  const OrdersPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedOrderId =
+        useState(-1); // selectedOrderId -1 is nothing selected
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < 600) {
+        return OrdersPageMobile(
+          selectedOrderId: selectedOrderId,
+        );
+      } else {
+        return OrdersPageTablet(
+          selectedOrderId: selectedOrderId,
+        );
+      }
+    });
+  }
+}
+
+class OrdersPageMobile extends HookConsumerWidget {
+  final ValueNotifier<int> selectedOrderId;
+  const OrdersPageMobile({
     super.key,
+    required this.selectedOrderId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedOrderId =
-        useState(-1); // selectedOrderId -1 is nothing selected
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        //main screen
-        SizedBox(
-          width: Device.screenType == ScreenType.tablet ? 40.w : 100.w,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppBar(
-                backgroundColor: Colors.transparent,
-                title: const Text("Manage Orders"),
-              ),
-              Expanded(
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: OrderList(
-                        selectedOrderId: selectedOrderId,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: FloatingActionButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ModifyOrderPage(),
-                            ),
-                          );
-                        },
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        child: const Icon(Icons.add),
-                      ),
-                    )
-                  ],
-                ),
-              ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Orders"),
+          bottom: TabBar(
+            tabs: const [
+              Tab(text: "Orders"),
+              Tab(text: "Order Details"),
             ],
           ),
         ),
+        body: TabBarView(
+          children: [
+            OrderListScreen(selectedOrderId: selectedOrderId),
+            OrderDetailsScreen(selectedOrderId: selectedOrderId),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-        //second screen on tablet screen and above
-        if (Device.screenType == ScreenType.tablet) const Gap(4),
-        if (Device.screenType == ScreenType.tablet)
-          Expanded(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: selectedOrderId.value == -1
-                    ? const NoOrderSelectedNotif()
-                    : OrderDetails(
-                        order: orders
-                            .where((order) => order.id == selectedOrderId.value)
-                            .first),
+class OrdersPageTablet extends HookConsumerWidget {
+  final ValueNotifier<int> selectedOrderId;
+  const OrdersPageTablet({
+    super.key,
+    required this.selectedOrderId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 40.w,
+          child: Column(
+            children: [
+              AppBar(
+                title: const Text("Orders"),
               ),
-            ),
+              Expanded(child: OrderListScreen(selectedOrderId: selectedOrderId)),
+            ],
           ),
+        ),
+        const Gap(4),
+        Expanded(child: OrderDetailsScreen(selectedOrderId: selectedOrderId)),
+      ],
+    );
+  }
+}
+
+class OrderDetailsScreen extends StatelessWidget {
+  const OrderDetailsScreen({
+    super.key,
+    required this.selectedOrderId,
+  });
+
+  final ValueNotifier<int> selectedOrderId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: selectedOrderId.value == -1
+            ? const NoOrderSelectedNotif()
+            : OrderDetails(
+                order: orders
+                    .where((order) => order.id == selectedOrderId.value)
+                    .first),
+      ),
+    );
+  }
+}
+
+class OrderListScreen extends StatelessWidget {
+  const OrderListScreen({
+    super.key,
+    required this.selectedOrderId,
+  });
+
+  final ValueNotifier<int> selectedOrderId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: OrderList(
+            selectedOrderId: selectedOrderId,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ModifyOrderPage(),
+                ),
+              );
+            },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            child: const Icon(Icons.add),
+          ),
+        )
       ],
     );
   }
