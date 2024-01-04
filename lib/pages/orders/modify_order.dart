@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chrysant/constants.dart';
 import 'package:chrysant/logic/manage/category.dart';
 import 'package:chrysant/logic/manage/menu.dart';
+import 'package:chrysant/pages/components/image_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
@@ -158,12 +159,28 @@ class MenuTile extends HookWidget {
             borderRadius: BorderRadius.circular(8),
             color: Theme.of(context).colorScheme.secondary,
           ),
+          clipBehavior: Clip.antiAlias,
           child: menu.imagePath == ""
               ? Icon(
                   Icons.no_photography_outlined,
                   color: Theme.of(context).colorScheme.onSecondary,
                 )
-              : Image.file(File(menu.imagePath)),
+              : GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return ImagePreview(
+                          file: File(menu.imagePath),
+                          menuName: menu.name,
+                        );
+                      },
+                    ));
+                  },
+                  child: Hero(
+                    tag: menu.name,
+                    child: Image.file(File(menu.imagePath), fit: BoxFit.cover),
+                  ),
+                ),
         ),
         const Gap(8),
         TextScroll(

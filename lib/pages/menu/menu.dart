@@ -9,7 +9,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../constants.dart';
 import '../../logic/manage/category.dart';
 import '../../logic/manage/menu.dart';
-import 'ImagePreview.dart';
+import '../components/image_preview.dart';
 import 'manage_categories.dart';
 import 'modify_menu.dart';
 
@@ -204,7 +204,7 @@ class MenuTile extends ConsumerWidget {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: imagePath != ""
-                      ? InkWell(
+                      ? GestureDetector(
                           onTap: () {
                             Navigator.push(
                                 context,
