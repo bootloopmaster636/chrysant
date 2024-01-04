@@ -54,7 +54,7 @@ class MenuContents extends HookConsumerWidget {
       ),
     );
     final addCategoryContentIterable =
-        Iterable<Widget>.generate(1, (index) => const CategoryOverlay());
+        Iterable<Widget>.generate(1, (index) => const CategoryCard());
 
     return categoryProvider.isLoading
         ? const Center(child: CircularProgressIndicator())
@@ -66,20 +66,22 @@ class MenuContents extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
-                      TabBar(
-                        tabAlignment: TabAlignment.start,
-                        isScrollable: true,
-                        tabs: categoryProvider.value
-                                ?.map((e) {
-                                  return Tab(
-                                    text: e.category,
-                                  );
-                                })
-                                .followedBy(addCategoryTabIterable)
-                                .toList() ??
-                            [],
+                      Expanded(
+                        child: TabBar(
+                          tabAlignment: TabAlignment.start,
+                          isScrollable: true,
+                          tabs: categoryProvider.value
+                                  ?.map((e) {
+                                    return Tab(
+                                      text: e.category,
+                                    );
+                                  })
+                                  .followedBy(addCategoryTabIterable)
+                                  .toList() ??
+                              [],
+                        ),
                       ),
-                      const Spacer(),
+                      const Gap(32),
                       FilledButton(
                           onPressed: categoryProvider.value?.length != 0
                               ? () {

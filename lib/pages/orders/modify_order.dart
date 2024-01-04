@@ -86,16 +86,20 @@ class MenuSelector extends ConsumerWidget {
                                 .where(
                                     (element) => element.category == e.category)
                                 .toList();
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: filteredMenu.map((thisMenu) {
-                                  return MenuTile(menu: thisMenu, order: order);
-                                }).toList(),
-                              ),
-                            );
+                            return filteredMenu.length != 0
+                                ? Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: filteredMenu.map((thisMenu) {
+                                        return MenuTile(
+                                            menu: thisMenu, order: order);
+                                      }).toList(),
+                                    ),
+                                  )
+                                : const Center(
+                                    child: Text("No menu on this category"));
                           },
                           error: (e, s) => Text(e.toString()),
                           loading: () =>
@@ -117,8 +121,6 @@ class MenuTile extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemQuantity = useState(0);
-
     return LayoutBuilder(builder: (context, constraint) {
       if (constraint.maxWidth < 600) {
         return FractionallySizedBox(
@@ -221,59 +223,58 @@ class ItemQuantity extends HookConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (Device.screenType == ScreenType.tablet)
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-              padding: EdgeInsets.zero,
-            ),
-            onPressed: itemQuantity.value != 0
-                ? () {
-                    itemQuantity.value--;
-                    if (itemQuantity.value > 0) {
-                      final newOrderMenu = OrderMenu()
-                        ..name = menu.name
-                        ..quantity = itemQuantity.value
-                        ..price = menu.price * itemQuantity.value;
-                      var newOrderList = order.value.items;
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            padding: EdgeInsets.zero,
+          ),
+          onPressed: itemQuantity.value != 0
+              ? () {
+                  itemQuantity.value--;
+                  if (itemQuantity.value > 0) {
+                    final newOrderMenu = OrderMenu()
+                      ..name = menu.name
+                      ..quantity = itemQuantity.value
+                      ..price = menu.price * itemQuantity.value;
+                    var newOrderList = order.value.items;
 
-                      // TODO refactor this AI generated code XD
-                      // if this menu is not on order list
-                      if (order.value.items
-                          .where((element) => element.name == menu.name)
-                          .isEmpty) {
-                        //add this menu to order list
-                        newOrderList.add(newOrderMenu);
-                        final newOrder = Order()
-                          ..items = newOrderList
-                          ..totalPrice = order.value.totalPrice + menu.price;
-                        order.value = newOrder;
-                      } else {
-                        //else just change the quantity value
-                        final index = order.value.items
-                            .indexWhere((element) => element.name == menu.name);
-                        newOrderList[index].quantity = itemQuantity.value;
-                        newOrderList[index].price =
-                            menu.price * itemQuantity.value;
-                        final newOrder = Order()
-                          ..items = newOrderList
-                          ..totalPrice = order.value.totalPrice + menu.price;
-                        order.value = newOrder;
-                      }
-                    } else {
-                      final newOrderList = order.value.items;
-                      final index = order.value.items
-                          .indexWhere((element) => element.name == menu.name);
-                      newOrderList.removeAt(index);
+                    // TODO refactor this AI generated code XD
+                    // if this menu is not on order list
+                    if (order.value.items
+                        .where((element) => element.name == menu.name)
+                        .isEmpty) {
+                      //add this menu to order list
+                      newOrderList.add(newOrderMenu);
                       final newOrder = Order()
                         ..items = newOrderList
-                        ..totalPrice = order.value.totalPrice - menu.price;
+                        ..totalPrice = order.value.totalPrice + menu.price;
+                      order.value = newOrder;
+                    } else {
+                      //else just change the quantity value
+                      final index = order.value.items
+                          .indexWhere((element) => element.name == menu.name);
+                      newOrderList[index].quantity = itemQuantity.value;
+                      newOrderList[index].price =
+                          menu.price * itemQuantity.value;
+                      final newOrder = Order()
+                        ..items = newOrderList
+                        ..totalPrice = order.value.totalPrice + menu.price;
                       order.value = newOrder;
                     }
+                  } else {
+                    final newOrderList = order.value.items;
+                    final index = order.value.items
+                        .indexWhere((element) => element.name == menu.name);
+                    newOrderList.removeAt(index);
+                    final newOrder = Order()
+                      ..items = newOrderList
+                      ..totalPrice = order.value.totalPrice - menu.price;
+                    order.value = newOrder;
                   }
-                : null,
-            child: const Icon(Icons.remove),
-          ),
+                }
+              : null,
+          child: const Icon(Icons.remove),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -281,49 +282,48 @@ class ItemQuantity extends HookConsumerWidget {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
-        if (Device.screenType == ScreenType.tablet)
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              padding: EdgeInsets.zero,
-            ),
-            onPressed: itemQuantity.value < 99
-                ? () {
-                    if (itemQuantity.value < 99) {
-                      itemQuantity.value++;
-                      final newOrderMenu = OrderMenu()
-                        ..name = menu.name
-                        ..quantity = itemQuantity.value
-                        ..price = menu.price * itemQuantity.value;
-                      var newOrderList = order.value.items;
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            padding: EdgeInsets.zero,
+          ),
+          onPressed: itemQuantity.value < 99
+              ? () {
+                  if (itemQuantity.value < 99) {
+                    itemQuantity.value++;
+                    final newOrderMenu = OrderMenu()
+                      ..name = menu.name
+                      ..quantity = itemQuantity.value
+                      ..price = menu.price * itemQuantity.value;
+                    var newOrderList = order.value.items;
 
-                      // if this menu is not on order list
-                      if (order.value.items
-                          .where((element) => element.name == menu.name)
-                          .isEmpty) {
-                        //add this menu to order list
-                        newOrderList.add(newOrderMenu);
-                        final newOrder = Order()
-                          ..items = newOrderList
-                          ..totalPrice = order.value.totalPrice + menu.price;
-                        order.value = newOrder;
-                      } else {
-                        //else just change the quantity value
-                        final index = order.value.items
-                            .indexWhere((element) => element.name == menu.name);
-                        newOrderList[index].quantity = itemQuantity.value;
-                        newOrderList[index].price =
-                            menu.price * itemQuantity.value;
-                        final newOrder = Order()
-                          ..items = newOrderList
-                          ..totalPrice = order.value.totalPrice + menu.price;
-                        order.value = newOrder;
-                      }
+                    // if this menu is not on order list
+                    if (order.value.items
+                        .where((element) => element.name == menu.name)
+                        .isEmpty) {
+                      //add this menu to order list
+                      newOrderList.add(newOrderMenu);
+                      final newOrder = Order()
+                        ..items = newOrderList
+                        ..totalPrice = order.value.totalPrice + menu.price;
+                      order.value = newOrder;
+                    } else {
+                      //else just change the quantity value
+                      final index = order.value.items
+                          .indexWhere((element) => element.name == menu.name);
+                      newOrderList[index].quantity = itemQuantity.value;
+                      newOrderList[index].price =
+                          menu.price * itemQuantity.value;
+                      final newOrder = Order()
+                        ..items = newOrderList
+                        ..totalPrice = order.value.totalPrice + menu.price;
+                      order.value = newOrder;
                     }
                   }
-                : null,
-            child: const Icon(Icons.add),
-          ),
+                }
+              : null,
+          child: const Icon(Icons.add),
+        ),
       ],
     );
   }
@@ -331,23 +331,64 @@ class ItemQuantity extends HookConsumerWidget {
 
 class OrderDetails extends HookConsumerWidget {
   final ValueNotifier<Order> order;
+  final bool enableDragHandle;
 
-  const OrderDetails({super.key, required this.order});
+  const OrderDetails(
+      {super.key, required this.order, required this.enableDragHandle});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
-      child: Column(children: [
-        Text("Order Details"),
-        Text("Menu"),
-        Expanded(
-          child: Column(
-            children: order.value.items
-                .map((e) => Text("${e.name} (x${e.quantity})"))
-                .toList(),
-          ),
-        )
-      ]),
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (enableDragHandle)
+              Center(
+                child: Icon(Icons.drag_handle_outlined,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimaryContainer
+                        .withOpacity(0.8)),
+              ),
+            const Text(
+              "Order Details",
+              style: TextStyle(fontSize: 20),
+            ),
+            const Gap(8),
+            InfoCard(),
+            const Gap(16),
+            const Text(
+              "Menu",
+              style: TextStyle(fontSize: 20),
+            ),
+            Expanded(
+              child: Column(
+                children: order.value.items
+                    .map((e) => Text("${e.name} (x${e.quantity})"))
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InfoCard extends HookConsumerWidget {
+  const InfoCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return const Card(
+      elevation: 4,
+      child: SizedBox(
+        height: 100,
+        child: Row(children: []),
+      ),
     );
   }
 }
@@ -380,6 +421,7 @@ class TabletLayout extends HookConsumerWidget {
               flex: 1,
               child: OrderDetails(
                 order: order,
+                enableDragHandle: false,
               ),
             ),
           ],
@@ -413,17 +455,35 @@ class MobileLayout extends HookConsumerWidget {
           ),
           DraggableScrollableSheet(
             controller: sheetCtl.value,
-            initialChildSize: 0.16,
-            minChildSize: 0.16,
-            maxChildSize: 0.9,
-            snapAnimationDuration: const Duration(milliseconds: 200),
+            initialChildSize: 0.2,
+            minChildSize: 0.2,
+            maxChildSize: 0.8,
             snap: true,
+            snapAnimationDuration: const Duration(milliseconds: 200),
             builder: (context, controller) {
               return SingleChildScrollView(
-                  controller: controller,
+                clipBehavior: Clip.none,
+                controller: controller,
+                child: Container(
+                  height: 100.h,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .inverseSurface
+                            .withOpacity(0.2),
+                        blurRadius: 4,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
                   child: OrderDetails(
                     order: order,
-                  ));
+                    enableDragHandle: true,
+                  ),
+                ),
+              );
             },
           ),
         ],
