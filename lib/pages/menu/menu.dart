@@ -9,6 +9,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../constants.dart';
 import '../../logic/manage/category.dart';
 import '../../logic/manage/menu.dart';
+import 'ImagePreview.dart';
 import 'manage_categories.dart';
 import 'modify_menu.dart';
 
@@ -203,7 +204,22 @@ class MenuTile extends ConsumerWidget {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: imagePath != ""
-                      ? Image.file(File(imagePath), fit: BoxFit.cover)
+                      ? InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ImagePreview(
+                                          file: File(imagePath),
+                                          menuName: name,
+                                        )));
+                          },
+                          child: Hero(
+                            tag: name,
+                            child:
+                                Image.file(File(imagePath), fit: BoxFit.cover),
+                          ),
+                        )
                       : const Icon(Icons.no_photography_outlined),
                 ),
                 const Gap(16),
