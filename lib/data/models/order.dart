@@ -11,6 +11,7 @@ class Order {
   DateTime? orderedAt;
   DateTime? paidAt;
   int totalPrice = 0;
+  String? note = "";
   List<OrderMenu> items = [];
 }
 

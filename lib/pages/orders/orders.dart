@@ -1,4 +1,5 @@
 import 'package:chrysant/constants.dart';
+import 'package:chrysant/logic/manage/order.dart';
 import 'package:chrysant/pages/components/titled_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -9,39 +10,6 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../data/models/order.dart';
 import 'modify_order.dart';
-
-// TODO temp data for testing purposes only
-final Order example1 = Order()
-  ..id = 1
-  ..name = "John Doe"
-  ..tableNumber = 1
-  ..isDineIn = true
-  ..orderedAt = DateTime.now()
-  ..totalPrice = 12
-  ..items = [
-    OrderMenu()
-      ..name = "Chicken Chop"
-      ..price = 10
-      ..quantity = 1,
-    OrderMenu()
-      ..name = "Coke"
-      ..price = 2
-      ..quantity = 1
-  ];
-final Order example2 = Order()
-  ..id = 2
-  ..name = "Chto"
-  ..isDineIn = false
-  ..orderedAt = DateTime.now()
-  ..totalPrice = 10000
-  ..items = [
-    OrderMenu()
-      ..name = "Soto Ayam"
-      ..price = 10000
-      ..quantity = 1,
-  ];
-
-final List<Order> orders = [example1, example2];
 
 class OrdersPage extends HookWidget {
   const OrdersPage({super.key});
@@ -66,6 +34,7 @@ class OrdersPage extends HookWidget {
 
 class OrdersPageMobile extends HookConsumerWidget {
   final ValueNotifier<int> selectedOrderId;
+
   const OrdersPageMobile({
     super.key,
     required this.selectedOrderId,
@@ -98,6 +67,7 @@ class OrdersPageMobile extends HookConsumerWidget {
 
 class OrdersPageTablet extends HookConsumerWidget {
   final ValueNotifier<int> selectedOrderId;
+
   const OrdersPageTablet({
     super.key,
     required this.selectedOrderId,
@@ -127,7 +97,7 @@ class OrdersPageTablet extends HookConsumerWidget {
   }
 }
 
-class OrderDetailsScreen extends StatelessWidget {
+class OrderDetailsScreen extends ConsumerWidget {
   const OrderDetailsScreen({
     super.key,
     required this.selectedOrderId,
@@ -136,16 +106,24 @@ class OrderDetailsScreen extends StatelessWidget {
   final ValueNotifier<int> selectedOrderId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: selectedOrderId.value == -1
-            ? const NoOrderSelectedNotif()
-            : OrderDetails(
-                order: orders
-                    .where((order) => order.id == selectedOrderId.value)
-                    .first),
+        child: ref.watch(ordersProvider).when(
+              data: (orders) {
+                return selectedOrderId.value == -1
+                    ? const NoOrderSelectedNotif()
+                    : OrderDetails(
+                        order: orders
+                            .where((order) => order.id == selectedOrderId.value)
+                            .first);
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => const Center(
+                child: Text("Error fetching orders"),
+              ),
+            ),
       ),
     );
   }
@@ -215,23 +193,32 @@ class OrderList extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      children: orders
-          .map(
-            (order) => Material(
-              child: InkWell(
-                onTap: () {
-                  selectedOrderId.value = order.id;
-                },
-                child: OrderTile(
-                    order: order,
-                    isSelected:
-                        order.id == selectedOrderId.value ? true : false),
-              ),
-            ),
-          )
-          .toList(),
-    );
+    return ref.watch(ordersProvider).when(
+          data: (orders) {
+            return ListView(
+              children: orders
+                  .map(
+                    (order) => Material(
+                      child: InkWell(
+                        onTap: () {
+                          selectedOrderId.value = order.id;
+                        },
+                        child: OrderTile(
+                            order: order,
+                            isSelected: order.id == selectedOrderId.value
+                                ? true
+                                : false),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => const Center(
+            child: Text("Error fetching orders"),
+          ),
+        );
   }
 }
 

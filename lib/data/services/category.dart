@@ -1,3 +1,4 @@
+import 'package:chrysant/data/models/order.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,7 +17,7 @@ class CategoryService {
     final dir = await getApplicationSupportDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [CategorySchema, MenuSchema],
+        [CategorySchema, MenuSchema, OrderSchema],
         directory: dir.path,
         inspector: true,
       );

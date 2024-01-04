@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:chrysant/constants.dart';
 import 'package:chrysant/logic/manage/category.dart';
 import 'package:chrysant/logic/manage/menu.dart';
+import 'package:chrysant/logic/manage/order.dart';
 import 'package:chrysant/pages/components/image_preview.dart';
+import 'package:chrysant/pages/components/titled_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -137,7 +140,7 @@ class MenuTile extends HookWidget {
         );
       } else {
         return Container(
-          width: 240,
+          width: 200,
           height: 260,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondaryContainer,
@@ -219,7 +222,13 @@ class ItemQuantity extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final itemQuantity = useState(0);
+    final itemQuantity = useState(
+        order.value.items.where((element) => element.name == menu.name).isEmpty
+            ? 0
+            : order.value.items
+                .where((element) => element.name == menu.name)
+                .first
+                .quantity);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -258,7 +267,7 @@ class ItemQuantity extends HookConsumerWidget {
                           menu.price * itemQuantity.value;
                       final newOrder = Order()
                         ..items = newOrderList
-                        ..totalPrice = order.value.totalPrice + menu.price;
+                        ..totalPrice = order.value.totalPrice - menu.price;
                       order.value = newOrder;
                     }
                   } else {
@@ -338,12 +347,18 @@ class OrderDetails extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final customerNameCtl = useTextEditingController();
+    final tableNumberCtl = useTextEditingController();
+    final isDiningInCtl = useState(true);
+    final noteCtl = useTextEditingController();
+
     return Card(
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (enableDragHandle)
               Center(
@@ -358,19 +373,53 @@ class OrderDetails extends HookConsumerWidget {
               style: TextStyle(fontSize: 20),
             ),
             const Gap(8),
-            InfoCard(),
+            InfoCard(
+              order: order,
+              customerNameCtl: customerNameCtl,
+              tableNumberCtl: tableNumberCtl,
+              isDiningInCtl: isDiningInCtl,
+              noteCtl: noteCtl,
+            ),
             const Gap(16),
             const Text(
-              "Menu",
+              "Selected Menu",
               style: TextStyle(fontSize: 20),
             ),
             Expanded(
-              child: Column(
+              child: ListView(
                 children: order.value.items
-                    .map((e) => Text("${e.name} (x${e.quantity})"))
+                    .map((e) => OrderedMenuTile(orderMenu: e))
                     .toList(),
               ),
             ),
+            FilledButton(
+              onPressed: () {
+                ref.read(ordersProvider.notifier).addOrder(
+                      Order()
+                        ..name = customerNameCtl.text
+                        ..tableNumber = tableNumberCtl.text == ""
+                            ? null
+                            : int.parse(tableNumberCtl.text)
+                        ..isDineIn = isDiningInCtl.value
+                        ..note = noteCtl.text
+                        ..items = order.value.items
+                        ..totalPrice = order.value.totalPrice
+                        ..orderedAt = DateTime.now(),
+                    );
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: Row(
+                  children: [
+                    const Text("Add Order"),
+                    const Spacer(),
+                    Text("Total $currency ${order.value.totalPrice}"),
+                    const Icon(Icons.chevron_right)
+                  ],
+                ),
+              ),
+            )
           ],
         ),
       ),
@@ -378,16 +427,137 @@ class OrderDetails extends HookConsumerWidget {
   }
 }
 
+class OrderedMenuTile extends StatelessWidget {
+  final OrderMenu orderMenu;
+
+  const OrderedMenuTile({super.key, required this.orderMenu});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 72,
+      child: Card(
+        elevation: 4,
+        child: ListTile(
+          title: Text("${orderMenu.name} (x${orderMenu.quantity})"),
+          subtitle:
+              Text("@ $currency ${orderMenu.price ~/ orderMenu.quantity}"),
+          trailing: Text(
+            "$currency ${orderMenu.price}",
+            style: TextStyle(fontSize: 14),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class InfoCard extends HookConsumerWidget {
-  const InfoCard({super.key});
+  final ValueNotifier<Order> order;
+  final TextEditingController customerNameCtl;
+  final TextEditingController tableNumberCtl;
+  final ValueNotifier<bool> isDiningInCtl;
+  final TextEditingController noteCtl;
+
+  const InfoCard(
+      {super.key,
+      required this.order,
+      required this.customerNameCtl,
+      required this.tableNumberCtl,
+      required this.isDiningInCtl,
+      required this.noteCtl});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Card(
+    final formKey = GlobalKey<FormState>();
+
+    return Card(
       elevation: 4,
-      child: SizedBox(
-        height: 100,
-        child: Row(children: []),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: formKey,
+          child: SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              runSpacing: 8,
+              spacing: 8,
+              children: [
+                FractionallySizedBox(
+                  widthFactor: 0.48,
+                  child: TitledWidget(
+                    title: "Customer Name",
+                    child: TextFormField(
+                      controller: customerNameCtl,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(8),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ),
+                FractionallySizedBox(
+                  widthFactor: 0.32,
+                  child: TitledWidget(
+                    title: "Table Number",
+                    child: TextFormField(
+                      controller: tableNumberCtl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(8),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                    ),
+                  ),
+                ),
+                FractionallySizedBox(
+                  widthFactor: 0.4,
+                  child: TitledWidget(
+                    title: "Order Notes",
+                    child: TextFormField(
+                      controller: noteCtl,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(8),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ),
+                TitledWidget(
+                  title: "Order Type",
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio(
+                        value: true,
+                        groupValue: isDiningInCtl.value,
+                        onChanged: (value) {
+                          isDiningInCtl.value = value as bool;
+                        },
+                      ),
+                      const Text("Dine In"),
+                      const Gap(8),
+                      Radio(
+                        value: false,
+                        groupValue: isDiningInCtl.value,
+                        onChanged: (value) {
+                          isDiningInCtl.value = value as bool;
+                        },
+                      ),
+                      const Text("Take Away"),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

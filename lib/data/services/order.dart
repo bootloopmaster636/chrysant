@@ -6,10 +6,10 @@ import '../models/category.dart';
 import '../models/menu.dart';
 import '../models/order.dart';
 
-class CategoryService {
+class OrderService {
   late Future<Isar> db;
 
-  CategoryService() {
+  OrderService() {
     db = openDB();
   }
 
@@ -30,7 +30,8 @@ class CategoryService {
     try {
       final isar = await db;
       final orders = isar.orders;
-      return orders.where().findAll();
+      final orderItems = await orders.where().findAll();
+      return orderItems;
     } catch (e) {
       Logger().e(e.toString());
       return [];
@@ -42,6 +43,7 @@ class CategoryService {
       required String name,
       int? tableNumber,
       bool isDineIn = false,
+      String? note,
       DateTime? orderedAt,
       DateTime? paidAt,
       required List<OrderMenu> items}) async {
@@ -51,18 +53,25 @@ class CategoryService {
         ..name = name
         ..tableNumber = tableNumber
         ..isDineIn = isDineIn
+        ..note = note
         ..orderedAt = orderedAt
         ..paidAt = paidAt
         ..items = items;
+
+      if (id != null) {
+        order.id = id;
+      }
+
+      isar.writeTxn(() => isar.orders.put(order));
     } catch (e) {
       Logger().e(e.toString());
     }
   }
 
-  Future<void> deleteCategory(Id id) async {
+  Future<void> deleteOrder(Id id) async {
     try {
       final isar = await db;
-      await isar.writeTxn(() => isar.categorys.delete(id));
+      await isar.writeTxn(() => isar.orders.delete(id));
     } catch (e) {
       Logger().e(e.toString());
     }

@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/category.dart';
 import '../models/menu.dart';
+import '../models/order.dart';
 
 class MenuService {
   late Future<Isar> db;
@@ -16,7 +17,7 @@ class MenuService {
     final dir = await getApplicationSupportDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [MenuSchema, CategorySchema],
+        [MenuSchema, CategorySchema, OrderSchema],
         directory: dir.path,
         inspector: true,
       );
