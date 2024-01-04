@@ -52,7 +52,7 @@ class MenuSelector extends ConsumerWidget {
     final menus = ref.watch(menusProvider);
 
     return categories.isLoading
-        ? const CircularProgressIndicator()
+        ? const Center(child: LinearProgressIndicator())
         : DefaultTabController(
             length: categories.value!.length,
             child: Column(
@@ -129,7 +129,7 @@ class MenuTile extends HookWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.all(16),
-            child: item(context, itemQuantity),
+            child: item(context),
           ),
         );
       } else {
@@ -141,13 +141,13 @@ class MenuTile extends HookWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.all(16),
-          child: item(context, itemQuantity),
+          child: item(context),
         );
       }
     });
   }
 
-  Column item(BuildContext context, ValueNotifier<int> itemQuantity) {
+  Column item(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -182,119 +182,131 @@ class MenuTile extends HookWidget {
         const Gap(16),
         const Text("Quantity"),
         const Gap(4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (Device.screenType == ScreenType.tablet)
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.tertiary,
-                  padding: EdgeInsets.zero,
-                ),
-                onPressed: itemQuantity.value != 0
-                    ? () {
-                        itemQuantity.value--;
-                        if (itemQuantity.value > 0) {
-                          final newOrderMenu = OrderMenu()
-                            ..name = menu.name
-                            ..quantity = itemQuantity.value
-                            ..price = menu.price * itemQuantity.value;
-                          var newOrderList = order.value.items;
+        ItemQuantity(menu: menu, order: order)
+      ],
+    );
+  }
+}
 
-                          // TODO refactor this AI generated code XD
-                          // if this menu is not on order list
-                          if (order.value.items
-                              .where((element) => element.name == menu.name)
-                              .isEmpty) {
-                            //add this menu to order list
-                            newOrderList.add(newOrderMenu);
-                            final newOrder = Order()
-                              ..items = newOrderList
-                              ..totalPrice =
-                                  order.value.totalPrice + menu.price;
-                            order.value = newOrder;
-                          } else {
-                            //else just change the quantity value
-                            final index = order.value.items.indexWhere(
-                                (element) => element.name == menu.name);
-                            newOrderList[index].quantity = itemQuantity.value;
-                            newOrderList[index].price =
-                                menu.price * itemQuantity.value;
-                            final newOrder = Order()
-                              ..items = newOrderList
-                              ..totalPrice =
-                                  order.value.totalPrice + menu.price;
-                            order.value = newOrder;
-                          }
-                        } else {
-                          final newOrderList = order.value.items;
-                          final index = order.value.items.indexWhere(
-                              (element) => element.name == menu.name);
-                          newOrderList.removeAt(index);
-                          final newOrder = Order()
-                            ..items = newOrderList
-                            ..totalPrice = order.value.totalPrice - menu.price;
-                          order.value = newOrder;
-                        }
-                      }
-                    : null,
-                child: const Icon(Icons.remove),
-              ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                itemQuantity.value.toString(),
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+class ItemQuantity extends HookConsumerWidget {
+  const ItemQuantity({
+    super.key,
+    required this.menu,
+    required this.order,
+  });
+
+  final Menu menu;
+  final ValueNotifier<Order> order;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final itemQuantity = useState(0);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (Device.screenType == ScreenType.tablet)
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
+              padding: EdgeInsets.zero,
             ),
-            if (Device.screenType == ScreenType.tablet)
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  padding: EdgeInsets.zero,
-                ),
-                onPressed: itemQuantity.value < 99
-                    ? () {
-                        if (itemQuantity.value < 99) {
-                          itemQuantity.value++;
-                          final newOrderMenu = OrderMenu()
-                            ..name = menu.name
-                            ..quantity = itemQuantity.value
-                            ..price = menu.price * itemQuantity.value;
-                          var newOrderList = order.value.items;
+            onPressed: itemQuantity.value != 0
+                ? () {
+                    itemQuantity.value--;
+                    if (itemQuantity.value > 0) {
+                      final newOrderMenu = OrderMenu()
+                        ..name = menu.name
+                        ..quantity = itemQuantity.value
+                        ..price = menu.price * itemQuantity.value;
+                      var newOrderList = order.value.items;
 
-                          // if this menu is not on order list
-                          if (order.value.items
-                              .where((element) => element.name == menu.name)
-                              .isEmpty) {
-                            //add this menu to order list
-                            newOrderList.add(newOrderMenu);
-                            final newOrder = Order()
-                              ..items = newOrderList
-                              ..totalPrice =
-                                  order.value.totalPrice + menu.price;
-                            order.value = newOrder;
-                          } else {
-                            //else just change the quantity value
-                            final index = order.value.items.indexWhere(
-                                (element) => element.name == menu.name);
-                            newOrderList[index].quantity = itemQuantity.value;
-                            newOrderList[index].price =
-                                menu.price * itemQuantity.value;
-                            final newOrder = Order()
-                              ..items = newOrderList
-                              ..totalPrice =
-                                  order.value.totalPrice + menu.price;
-                            order.value = newOrder;
-                          }
-                        }
+                      // TODO refactor this AI generated code XD
+                      // if this menu is not on order list
+                      if (order.value.items
+                          .where((element) => element.name == menu.name)
+                          .isEmpty) {
+                        //add this menu to order list
+                        newOrderList.add(newOrderMenu);
+                        final newOrder = Order()
+                          ..items = newOrderList
+                          ..totalPrice = order.value.totalPrice + menu.price;
+                        order.value = newOrder;
+                      } else {
+                        //else just change the quantity value
+                        final index = order.value.items
+                            .indexWhere((element) => element.name == menu.name);
+                        newOrderList[index].quantity = itemQuantity.value;
+                        newOrderList[index].price =
+                            menu.price * itemQuantity.value;
+                        final newOrder = Order()
+                          ..items = newOrderList
+                          ..totalPrice = order.value.totalPrice + menu.price;
+                        order.value = newOrder;
                       }
-                    : null,
-                child: const Icon(Icons.add),
-              ),
-          ],
-        )
+                    } else {
+                      final newOrderList = order.value.items;
+                      final index = order.value.items
+                          .indexWhere((element) => element.name == menu.name);
+                      newOrderList.removeAt(index);
+                      final newOrder = Order()
+                        ..items = newOrderList
+                        ..totalPrice = order.value.totalPrice - menu.price;
+                      order.value = newOrder;
+                    }
+                  }
+                : null,
+            child: const Icon(Icons.remove),
+          ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            itemQuantity.value.toString(),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        if (Device.screenType == ScreenType.tablet)
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              padding: EdgeInsets.zero,
+            ),
+            onPressed: itemQuantity.value < 99
+                ? () {
+                    if (itemQuantity.value < 99) {
+                      itemQuantity.value++;
+                      final newOrderMenu = OrderMenu()
+                        ..name = menu.name
+                        ..quantity = itemQuantity.value
+                        ..price = menu.price * itemQuantity.value;
+                      var newOrderList = order.value.items;
+
+                      // if this menu is not on order list
+                      if (order.value.items
+                          .where((element) => element.name == menu.name)
+                          .isEmpty) {
+                        //add this menu to order list
+                        newOrderList.add(newOrderMenu);
+                        final newOrder = Order()
+                          ..items = newOrderList
+                          ..totalPrice = order.value.totalPrice + menu.price;
+                        order.value = newOrder;
+                      } else {
+                        //else just change the quantity value
+                        final index = order.value.items
+                            .indexWhere((element) => element.name == menu.name);
+                        newOrderList[index].quantity = itemQuantity.value;
+                        newOrderList[index].price =
+                            menu.price * itemQuantity.value;
+                        final newOrder = Order()
+                          ..items = newOrderList
+                          ..totalPrice = order.value.totalPrice + menu.price;
+                        order.value = newOrder;
+                      }
+                    }
+                  }
+                : null,
+            child: const Icon(Icons.add),
+          ),
       ],
     );
   }
