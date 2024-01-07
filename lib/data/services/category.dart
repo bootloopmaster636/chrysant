@@ -1,25 +1,25 @@
+import 'dart:io';
+
+import 'package:chrysant/data/models/category.dart';
+import 'package:chrysant/data/models/menu.dart';
 import 'package:chrysant/data/models/order.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../models/category.dart';
-import '../models/menu.dart';
-
 class CategoryService {
-  late Future<Isar> db;
 
   CategoryService() {
     db = openDB();
   }
+  late Future<Isar> db;
 
   Future<Isar> openDB() async {
-    final dir = await getApplicationSupportDirectory();
+    final Directory dir = await getApplicationSupportDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [CategorySchema, MenuSchema, OrderSchema],
+        <CollectionSchema>[CategorySchema, MenuSchema, OrderSchema],
         directory: dir.path,
-        inspector: true,
       );
     }
 
@@ -28,19 +28,19 @@ class CategoryService {
 
   Future<List<Category>> getAllCategories() async {
     try {
-      final isar = await db;
-      final categories = isar.categorys;
+      final Isar isar = await db;
+      final IsarCollection<Category> categories = isar.categorys;
       return categories.where().findAll();
     } catch (e) {
       Logger().e(e.toString());
-      return [];
+      return <Category>[];
     }
   }
 
   Future<void> addCategory(String newCategory) async {
     try {
-      final isar = await db;
-      var category = Category()..category = newCategory;
+      final Isar isar = await db;
+      final Category category = Category()..category = newCategory;
       await isar.writeTxn(() => isar.categorys.put(category));
     } catch (e) {
       Logger().e(e.toString());
@@ -49,7 +49,7 @@ class CategoryService {
 
   Future<void> deleteCategory(Id id) async {
     try {
-      final isar = await db;
+      final Isar isar = await db;
       await isar.writeTxn(() => isar.categorys.delete(id));
     } catch (e) {
       Logger().e(e.toString());

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ImagePreview extends StatelessWidget {
-  const ImagePreview({super.key, required this.file, required this.menuName});
+  const ImagePreview({required this.file, required this.menuName, super.key});
 
   final File file;
   final String menuName;
@@ -16,7 +16,7 @@ class ImagePreview extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Hero(
             tag: menuName,
             child: Image.file(file),

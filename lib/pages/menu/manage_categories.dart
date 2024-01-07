@@ -1,19 +1,19 @@
+import 'package:chrysant/data/models/category.dart';
+import 'package:chrysant/data/models/menu.dart';
+import 'package:chrysant/logic/manage/category.dart';
+import 'package:chrysant/logic/manage/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import '../../data/models/category.dart';
-import '../../logic/manage/category.dart';
-import '../../logic/manage/menu.dart';
 
 class CategoryCard extends HookConsumerWidget {
   const CategoryCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final showAddCategory = useState(false);
-    final categoryProvider = ref.watch(categoriesProvider);
+    final ValueNotifier<bool> showAddCategory = useState(false);
+    final AsyncValue<List<Category>> categoryProvider = ref.watch(categoriesProvider);
 
     return Card(
       elevation: 1,
@@ -21,11 +21,11 @@ class CategoryCard extends HookConsumerWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 const Text(
-                  "Manage Categories",
+                  'Manage Categories',
                   style: TextStyle(fontSize: 24),
                   textAlign: TextAlign.start,
                 ),
@@ -36,7 +36,7 @@ class CategoryCard extends HookConsumerWidget {
                     },
                     icon: showAddCategory.value
                         ? const Icon(Icons.remove)
-                        : const Icon(Icons.add)),
+                        : const Icon(Icons.add),),
               ],
             ),
             AnimatedCrossFade(
@@ -50,12 +50,12 @@ class CategoryCard extends HookConsumerWidget {
             ),
             const Divider(),
             categoryProvider.when(
-              data: (categories) {
+              data: (List<Category> categories) {
                 if (categories.isNotEmpty) {
                   return Expanded(
                     child: ListView.builder(
                       itemCount: categories.length,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (BuildContext context, int index) {
                         return CategoryTile(category: categories[index]);
                       },
                     ),
@@ -66,8 +66,8 @@ class CategoryCard extends HookConsumerWidget {
               loading: () => const Center(
                 child: CircularProgressIndicator(),
               ),
-              error: (error, stackTrace) => const Center(
-                child: Text("Error"),
+              error: (Object error, StackTrace stackTrace) => const Center(
+                child: Text('Error'),
               ),
             ),
           ],
@@ -85,21 +85,21 @@ class NoCategoryNotif extends StatelessWidget {
     return const Center(
       child: Text(
           "You haven't added any category yet... Add one by pressing + button above!",
-          textAlign: TextAlign.center),
+          textAlign: TextAlign.center,),
     );
   }
 }
 
 class CategoryTile extends ConsumerWidget {
-  final Category category;
 
-  const CategoryTile({super.key, required this.category});
+  const CategoryTile({required this.category, super.key});
+  final Category category;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoryMenuCount = getMenuCountOnCategory(category, ref);
+    final int? categoryMenuCount = getMenuCountOnCategory(category, ref);
     return ListTile(
-      title: Text("${category.category} ($categoryMenuCount item(s))"),
+      title: Text('${category.category} ($categoryMenuCount item(s))'),
       trailing: SizedBox(
         width: 200,
         child: OutlinedButton(
@@ -110,18 +110,18 @@ class CategoryTile extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                      "Category ${category.category} still has menu(s) in it! Please empty this category first"),
+                      'Category ${category.category} still has menu(s) in it! Please empty this category first',),
                 ),
               );
             }
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Icon(Icons.delete_outline,
-                  color: Theme.of(context).colorScheme.error),
+                  color: Theme.of(context).colorScheme.error,),
               const Gap(8),
-              const Text("Delete Category")
+              const Text('Delete Category'),
             ],
           ),
         ),
@@ -130,30 +130,30 @@ class CategoryTile extends ConsumerWidget {
   }
 
   int? getMenuCountOnCategory(Category category, WidgetRef ref) {
-    final menuProvider = ref.watch(menusProvider);
-    final menu = menuProvider.value
-        ?.where((element) => element.category == category.category);
+    final AsyncValue<List<Menu>> menuProvider = ref.watch(menusProvider);
+    final Iterable<Menu>? menu = menuProvider.value
+        ?.where((Menu element) => element.category == category.category);
     return menu?.length;
   }
 }
 
 class AddCategory extends HookConsumerWidget {
+  const AddCategory({required this.showAddCategory, super.key});
   final ValueNotifier<bool> showAddCategory;
-  const AddCategory({super.key, required this.showAddCategory});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoryCtl = useTextEditingController();
+    final TextEditingController categoryCtl = useTextEditingController();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: [
+      children: <Widget>[
         SizedBox(
           width: 260,
           child: TextField(
             controller: categoryCtl,
             decoration: const InputDecoration(
-              labelText: "New Category Name",
+              labelText: 'New Category Name',
             ),
           ),
         ),

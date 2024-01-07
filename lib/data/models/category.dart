@@ -5,5 +5,5 @@ part 'category.g.dart';
 @collection
 class Category {
   Id id = Isar.autoIncrement;
-  String category = "";
+  String category = '';
 }

@@ -1,25 +1,25 @@
+import 'dart:io';
+
+import 'package:chrysant/data/models/category.dart';
+import 'package:chrysant/data/models/menu.dart';
+import 'package:chrysant/data/models/order.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../models/category.dart';
-import '../models/menu.dart';
-import '../models/order.dart';
-
 class OrderService {
-  late Future<Isar> db;
 
   OrderService() {
     db = openDB();
   }
+  late Future<Isar> db;
 
   Future<Isar> openDB() async {
-    final dir = await getApplicationSupportDirectory();
+    final Directory dir = await getApplicationSupportDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [CategorySchema, MenuSchema, OrderSchema],
+        <CollectionSchema>[CategorySchema, MenuSchema, OrderSchema],
         directory: dir.path,
-        inspector: true,
       );
     }
 
@@ -28,28 +28,38 @@ class OrderService {
 
   Future<List<Order>> getAllOrder() async {
     try {
-      final isar = await db;
-      final orders = isar.orders;
-      final orderItems = await orders.where().findAll();
+      final Isar isar = await db;
+      final IsarCollection<Order> orders = isar.orders;
+      final List<Order> orderItems = await orders.where().findAll();
       return orderItems;
     } catch (e) {
       Logger().e(e.toString());
-      return [];
+      return <Order>[];
+    }
+  }
+
+  Future<Order> getOrderById(Id id) async {
+    try {
+      final Isar isar = await db;
+      final IsarCollection<Order> orders = isar.orders;
+      final Order? order = await orders.get(id);
+      return order!;
+    } catch (e) {
+      Logger().e(e.toString());
+      return Order();
     }
   }
 
   Future<void> putOrder(
-      {Id? id,
-      required String name,
+      {required String name, required List<OrderMenu> items, Id? id,
       int? tableNumber,
       bool isDineIn = false,
       String? note,
       DateTime? orderedAt,
-      DateTime? paidAt,
-      required List<OrderMenu> items}) async {
+      DateTime? paidAt,}) async {
     try {
-      final isar = await db;
-      var order = Order()
+      final Isar isar = await db;
+      final Order order = Order()
         ..name = name
         ..tableNumber = tableNumber
         ..isDineIn = isDineIn
@@ -62,7 +72,7 @@ class OrderService {
         order.id = id;
       }
 
-      isar.writeTxn(() => isar.orders.put(order));
+      await isar.writeTxn(() => isar.orders.put(order));
     } catch (e) {
       Logger().e(e.toString());
     }
@@ -70,7 +80,7 @@ class OrderService {
 
   Future<void> deleteOrder(Id id) async {
     try {
-      final isar = await db;
+      final Isar isar = await db;
       await isar.writeTxn(() => isar.orders.delete(id));
     } catch (e) {
       Logger().e(e.toString());

@@ -13,11 +13,11 @@ class WIP extends StatelessWidget {
         child: Center(
             child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("(⌒_⌒;)", style: TextStyle(fontSize: 24)),
-            Text("Work in progress, check back in a bit..."),
+          children: <Widget>[
+            Text('(⌒_⌒;)', style: TextStyle(fontSize: 24)),
+            Text('Work in progress, check back in a bit...'),
           ],
-        )),
+        ),),
       ),
     );
   }

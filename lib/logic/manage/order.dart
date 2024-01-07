@@ -1,15 +1,14 @@
+import 'package:chrysant/data/models/order.dart';
+import 'package:chrysant/data/services/order.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../data/models/order.dart';
-import '../../data/services/order.dart';
 
 part 'order.g.dart';
 
 @riverpod
 class Orders extends _$Orders {
   Future<List<Order>> _fetchOrders() async {
-    final service = OrderService();
+    final OrderService service = OrderService();
     final List<Order> orders = await service.getAllOrder();
     return orders;
   }
@@ -19,11 +18,12 @@ class Orders extends _$Orders {
     return _fetchOrders();
   }
 
-  Future<void> addOrder(Order order) async {
+  Future<void> putOrder(Order order) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      final service = OrderService();
+      final OrderService service = OrderService();
+      final Order newOrder = Order();
       await service.putOrder(
         id: order.id,
         name: order.name ?? '',
@@ -42,9 +42,17 @@ class Orders extends _$Orders {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      final service = OrderService();
+      final OrderService service = OrderService();
       await service.deleteOrder(id);
       return await _fetchOrders();
     });
+  }
+}
+
+class OrderUtils {
+  static Future<Order> getOrder(Id id) async {
+    final OrderService service = OrderService();
+    final Order order = await service.getOrderById(id);
+    return order;
   }
 }

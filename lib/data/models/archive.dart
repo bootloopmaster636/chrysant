@@ -11,13 +11,13 @@ class Archive {
   bool isDineIn = false;
   DateTime? orderedAt;
   DateTime? paidAt;
-  List<ArchiveMenu> items = [];
+  List<ArchiveMenu> items = <ArchiveMenu>[];
 }
 
 @embedded
 class ArchiveMenu {
-  String name = "";
-  String? description = "";
+  String name = '';
+  String? description = '';
   int price = 0;
-  String category = "";
+  String category = '';
 }

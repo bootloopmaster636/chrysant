@@ -1,6 +1,8 @@
 import 'package:chrysant/constants.dart';
+import 'package:chrysant/data/models/order.dart';
 import 'package:chrysant/logic/manage/order.dart';
 import 'package:chrysant/pages/components/titled_widget.dart';
+import 'package:chrysant/pages/orders/modify_order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
@@ -8,37 +10,35 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../data/models/order.dart';
-import 'modify_order.dart';
-
 class OrdersPage extends HookWidget {
   const OrdersPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final selectedOrderId =
+    final ValueNotifier<int> selectedOrderId =
         useState(-1); // selectedOrderId -1 is nothing selected
-    return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < tabletWidth) {
-        return OrdersPageMobile(
-          selectedOrderId: selectedOrderId,
-        );
-      } else {
-        return OrdersPageTablet(
-          selectedOrderId: selectedOrderId,
-        );
-      }
-    });
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (constraints.maxWidth < tabletWidth) {
+          return OrdersPageMobile(
+            selectedOrderId: selectedOrderId,
+          );
+        } else {
+          return OrdersPageTablet(
+            selectedOrderId: selectedOrderId,
+          );
+        }
+      },
+    );
   }
 }
 
 class OrdersPageMobile extends HookConsumerWidget {
-  final ValueNotifier<int> selectedOrderId;
-
   const OrdersPageMobile({
-    super.key,
     required this.selectedOrderId,
+    super.key,
   });
+  final ValueNotifier<int> selectedOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,16 +46,16 @@ class OrdersPageMobile extends HookConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Orders"),
+          title: const Text('Orders'),
           bottom: const TabBar(
-            tabs: [
-              Tab(text: "Orders"),
-              Tab(text: "Order Details"),
+            tabs: <Widget>[
+              Tab(text: 'Orders'),
+              Tab(text: 'Order Details'),
             ],
           ),
         ),
         body: TabBarView(
-          children: [
+          children: <Widget>[
             OrderListScreen(selectedOrderId: selectedOrderId),
             OrderDetailsScreen(selectedOrderId: selectedOrderId),
           ],
@@ -66,27 +66,27 @@ class OrdersPageMobile extends HookConsumerWidget {
 }
 
 class OrdersPageTablet extends HookConsumerWidget {
-  final ValueNotifier<int> selectedOrderId;
-
   const OrdersPageTablet({
-    super.key,
     required this.selectedOrderId,
+    super.key,
   });
+  final ValueNotifier<int> selectedOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         SizedBox(
           width: 40.w,
           child: Column(
-            children: [
+            children: <Widget>[
               AppBar(
-                title: const Text("Orders"),
+                title: const Text('Orders'),
               ),
               Expanded(
-                  child: OrderListScreen(selectedOrderId: selectedOrderId)),
+                child: OrderListScreen(selectedOrderId: selectedOrderId),
+              ),
             ],
           ),
         ),
@@ -99,8 +99,8 @@ class OrdersPageTablet extends HookConsumerWidget {
 
 class OrderDetailsScreen extends ConsumerWidget {
   const OrderDetailsScreen({
-    super.key,
     required this.selectedOrderId,
+    super.key,
   });
 
   final ValueNotifier<int> selectedOrderId;
@@ -109,19 +109,23 @@ class OrderDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(24),
         child: ref.watch(ordersProvider).when(
-              data: (orders) {
+              data: (List<Order> orders) {
                 return selectedOrderId.value == -1
                     ? const NoOrderSelectedNotif()
                     : OrderDetails(
                         order: orders
-                            .where((order) => order.id == selectedOrderId.value)
-                            .first);
+                            .where(
+                              (Order order) =>
+                                  order.id == selectedOrderId.value,
+                            )
+                            .first,
+                      );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => const Center(
-                child: Text("Error fetching orders"),
+              error: (Object error, StackTrace stackTrace) => const Center(
+                child: Text('Error fetching orders'),
               ),
             ),
       ),
@@ -131,8 +135,8 @@ class OrderDetailsScreen extends ConsumerWidget {
 
 class OrderListScreen extends StatelessWidget {
   const OrderListScreen({
-    super.key,
     required this.selectedOrderId,
+    super.key,
   });
 
   final ValueNotifier<int> selectedOrderId;
@@ -141,21 +145,22 @@ class OrderListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.bottomRight,
-      children: [
+      children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: OrderList(
             selectedOrderId: selectedOrderId,
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: FloatingActionButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ModifyOrderPage(),
+                  builder: (BuildContext context) =>
+                      const ModifyOrderPage(mode: ManageMode.add),
                 ),
               );
             },
@@ -163,7 +168,7 @@ class OrderListScreen extends StatelessWidget {
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
             child: const Icon(Icons.add),
           ),
-        )
+        ),
       ],
     );
   }
@@ -176,57 +181,85 @@ class NoOrderSelectedNotif extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("(・・ ) ?", style: TextStyle(fontSize: 32)),
+      children: <Widget>[
+        Text('(・・ ) ?', style: TextStyle(fontSize: 32)),
         Gap(8),
-        Text("No order selected, select an order first to see the details.",
-            style: TextStyle(fontSize: 16)),
+        Text(
+          'No order selected, select an order first to see the details.',
+          style: TextStyle(fontSize: 16),
+        ),
       ],
     );
   }
 }
 
 class OrderList extends HookConsumerWidget {
+  const OrderList({required this.selectedOrderId, super.key});
   final ValueNotifier<Id> selectedOrderId;
-
-  const OrderList({super.key, required this.selectedOrderId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(ordersProvider).when(
-          data: (orders) {
-            return ListView(
-              children: orders
-                  .map(
-                    (order) => Material(
-                      child: InkWell(
-                        onTap: () {
-                          selectedOrderId.value = order.id;
-                        },
-                        child: OrderTile(
-                            order: order,
-                            isSelected: order.id == selectedOrderId.value
-                                ? true
-                                : false),
-                      ),
-                    ),
+          data: (List<Order> orders) {
+            return orders.isNotEmpty
+                ? ListView(
+                    children: orders
+                        .map(
+                          (Order order) => Material(
+                            child: InkWell(
+                              onTap: () {
+                                selectedOrderId.value = order.id;
+                              },
+                              child: OrderTile(
+                                order: order,
+                                isSelected: order.id == selectedOrderId.value
+                                    ? true
+                                    : false,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   )
-                  .toList(),
-            );
+                : const Center(child: NoOrderAvailableNotif());
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => const Center(
-            child: Text("Error fetching orders"),
+          error: (Object error, StackTrace stackTrace) => const Center(
+            child: Text('Error fetching orders'),
           ),
         );
   }
 }
 
+class NoOrderAvailableNotif extends StatelessWidget {
+  const NoOrderAvailableNotif({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Material(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('(　’ω’)旦~~', style: TextStyle(fontSize: 32)),
+          Gap(8),
+          Text(
+            'No order available, go grab a coffee and relax...',
+            style: TextStyle(fontSize: 16),
+          ),
+          Text(
+            'Or... Add an order by clicking the + button below.',
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class OrderTile extends HookConsumerWidget {
+  const OrderTile({required this.order, required this.isSelected, super.key});
   final Order order;
   final bool isSelected;
-
-  const OrderTile({super.key, required this.order, required this.isSelected});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -237,47 +270,53 @@ class OrderTile extends HookConsumerWidget {
             isSelected ? Theme.of(context).colorScheme.primaryContainer : null,
         elevation: 2,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              order.isDineIn
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Table",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          order.tableNumber.toString().padLeft(2, "0"),
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    )
-                  : const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Take",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "away",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+            children: <Widget>[
+              if (order.isDineIn)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      'Table',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    Text(
+                      order.tableNumber.toString().padLeft(2, '0'),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Take',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'away',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               const Gap(16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
-                    "Total $currency ${order.totalPrice}",
+                    'Total $currency ${order.totalPrice}',
                     style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.start,
                   ),
@@ -288,9 +327,9 @@ class OrderTile extends HookConsumerWidget {
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: order.items.length,
-                        itemBuilder: (context, index) {
+                        itemBuilder: (BuildContext context, int index) {
                           return Text(
-                            "${order.items[index].name} (x${order.items[index].quantity})",
+                            '${order.items[index].name} (x${order.items[index].quantity})',
                             style: const TextStyle(fontSize: 16),
                           );
                         },
@@ -305,7 +344,10 @@ class OrderTile extends HookConsumerWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ModifyOrderPage(id: order.id),
+                      builder: (BuildContext context) => ModifyOrderPage(
+                        mode: ManageMode.edit,
+                        currentOrder: order,
+                      ),
                     ),
                   );
                 },
@@ -331,39 +373,41 @@ class OrderTile extends HookConsumerWidget {
 }
 
 class OrderDetails extends HookConsumerWidget {
+  const OrderDetails({required this.order, super.key});
   final Order order;
-
-  const OrderDetails({super.key, required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text("Order Details", style: TextStyle(fontSize: 28)),
+      children: <Widget>[
+        const Text('Order Details', style: TextStyle(fontSize: 28)),
         const Gap(8),
         InfoCard(order: order),
         const Gap(8),
         Expanded(
           child: ListView.builder(
             itemCount: order.items.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (BuildContext context, int index) {
               return SizedBox(
                 height: 80,
                 child: ListTile(
                   title: Text(
-                    "${order.items[index].name} (x${order.items[index].quantity})",
+                    '${order.items[index].name} (x${order.items[index].quantity})',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   subtitle: Text(
-                    "@ $currency ${order.items[index].price}",
+                    '@ $currency ${order.items[index].price}',
                     style: const TextStyle(fontSize: 16),
                   ),
                   trailing: Text(
-                      "$currency ${order.items[index].quantity * order.items[index].price}",
-                      style: const TextStyle(fontSize: 20)),
+                    '$currency ${order.items[index].quantity * order.items[index].price}',
+                    style: const TextStyle(fontSize: 20),
+                  ),
                 ),
               );
             },
@@ -375,7 +419,7 @@ class OrderDetails extends HookConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            "Total: $currency ${order.totalPrice}",
+            'Total: $currency ${order.totalPrice}',
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             textAlign: TextAlign.end,
           ),
@@ -386,35 +430,33 @@ class OrderDetails extends HookConsumerWidget {
 }
 
 class InfoCard extends StatelessWidget {
+  const InfoCard({required this.order, super.key});
   final Order order;
-
-  const InfoCard({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 3,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 TitledWidget(
-                  title: "Customer Name",
+                  title: 'Customer Name',
                   child: Text(
-                    order.name ?? "Unknown",
+                    order.name ?? 'Unknown',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
                 const Gap(12),
                 TitledWidget(
-                  title: "Type",
+                  title: 'Type',
                   child: Text(
-                    order.isDineIn ? "Dining in" : "Take away",
+                    order.isDineIn ? 'Dining in' : 'Take away',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
@@ -423,19 +465,19 @@ class InfoCard extends StatelessWidget {
             const Gap(32),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 TitledWidget(
-                  title: "Table Number",
+                  title: 'Table Number',
                   child: Text(
                     order.tableNumber != null
-                        ? order.tableNumber.toString().padLeft(2, "0")
-                        : "Unknown",
+                        ? order.tableNumber.toString().padLeft(2, '0')
+                        : 'Unknown',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
                 const Gap(12),
                 TitledWidget(
-                  title: "Ordered At",
+                  title: 'Ordered At',
                   child: Text(
                     "${order.orderedAt?.day.toString().padLeft(2, "0")}-${order.orderedAt?.month.toString().padLeft(2, "0")}-${order.orderedAt?.year} @ ${order.orderedAt?.hour.toString().padLeft(2, "0")}:${order.orderedAt?.minute.toString().padLeft(2, "0")}",
                     style: const TextStyle(fontSize: 18),

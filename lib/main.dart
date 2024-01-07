@@ -14,15 +14,21 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Chrysant',
-        theme: ThemeData(
-          colorSchemeSeed: Colors.cyan,
-          useMaterial3: true,
-        ),
-        home: ResponsiveSizer(
-          builder: (context, orientation, screenType) {
-            return const AppLayout();
-          },
-        ));
+      title: 'Chrysant',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        colorSchemeSeed: Colors.cyan,
+        useMaterial3: true,
+      ),
+      home: ResponsiveSizer(
+        builder: (
+          BuildContext context,
+          Orientation orientation,
+          ScreenType screenType,
+        ) {
+          return const AppLayout();
+        },
+      ),
+    );
   }
 }

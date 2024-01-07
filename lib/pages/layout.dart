@@ -1,14 +1,13 @@
+import 'package:chrysant/constants.dart';
+import 'package:chrysant/pages/analytic/analytics.dart';
+import 'package:chrysant/pages/home/home.dart';
 import 'package:chrysant/pages/menu/menu.dart';
 import 'package:chrysant/pages/orders/orders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../constants.dart';
-import 'analytic/analytics.dart';
-import 'home/home.dart';
-
-const contentMain = <Widget>[
+const List<Widget> contentMain = <Widget>[
   HomePage(),
   OrdersPage(),
   MenuPage(),
@@ -20,8 +19,8 @@ class AppLayout extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = useState(1);
-    return LayoutBuilder(builder: (context, constraints) {
+    final ValueNotifier<int> selectedIndex = useState(1);
+    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
       if (constraints.maxWidth < tabletWidth) {
         return MobileAppLayout(
           selectedIndex: selectedIndex,
@@ -31,13 +30,13 @@ class AppLayout extends HookWidget {
           selectedIndex: selectedIndex,
         );
       }
-    });
+    },);
   }
 }
 
 class MobileAppLayout extends HookConsumerWidget {
+  const MobileAppLayout({required this.selectedIndex, super.key});
   final ValueNotifier<int> selectedIndex;
-  const MobileAppLayout({super.key, required this.selectedIndex});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,13 +48,13 @@ class MobileAppLayout extends HookConsumerWidget {
           selectedIndex.value = index;
         },
         selectedIndex: selectedIndex.value,
-        destinations: const [
+        destinations: const <Widget>[
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
           NavigationDestination(
-              icon: Icon(Icons.library_books_outlined), label: 'Orders'),
+              icon: Icon(Icons.library_books_outlined), label: 'Orders',),
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Menu'),
           NavigationDestination(
-              icon: Icon(Icons.show_chart), label: 'Analytics'),
+              icon: Icon(Icons.show_chart), label: 'Analytics',),
         ],
       ),
     );
@@ -63,12 +62,12 @@ class MobileAppLayout extends HookConsumerWidget {
 }
 
 class TabletAppLayout extends HookConsumerWidget {
+  const TabletAppLayout({required this.selectedIndex, super.key});
   final ValueNotifier<int> selectedIndex;
-  const TabletAppLayout({super.key, required this.selectedIndex});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final navExpanded = useState(false);
+    final ValueNotifier<bool> navExpanded = useState(false);
 
     return SafeArea(
       child: Container(
@@ -76,14 +75,14 @@ class TabletAppLayout extends HookConsumerWidget {
         height: double.infinity,
         color: Theme.of(context).colorScheme.background,
         child: Row(
-          children: [
+          children: <Widget>[
             //nav
             Nav(navExpanded: navExpanded, selectedIndex: selectedIndex),
 
             //content main
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: contentMain[selectedIndex.value],
               ),
             ),
@@ -96,9 +95,7 @@ class TabletAppLayout extends HookConsumerWidget {
 
 class Nav extends StatelessWidget {
   const Nav({
-    super.key,
-    required this.navExpanded,
-    required this.selectedIndex,
+    required this.navExpanded, required this.selectedIndex, super.key,
   });
 
   final ValueNotifier<bool> navExpanded;
@@ -117,15 +114,15 @@ class Nav extends StatelessWidget {
       labelType: navExpanded.value
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.selected,
-      destinations: const [
+      destinations: const <NavigationRailDestination>[
         NavigationRailDestination(
-            icon: Icon(Icons.home_outlined), label: Text('Home')),
+            icon: Icon(Icons.home_outlined), label: Text('Home'),),
         NavigationRailDestination(
-            icon: Icon(Icons.library_books_outlined), label: Text('Orders')),
+            icon: Icon(Icons.library_books_outlined), label: Text('Orders'),),
         NavigationRailDestination(
-            icon: Icon(Icons.menu_book), label: Text('Menu')),
+            icon: Icon(Icons.menu_book), label: Text('Menu'),),
         NavigationRailDestination(
-            icon: Icon(Icons.show_chart), label: Text('Analytics')),
+            icon: Icon(Icons.show_chart), label: Text('Analytics'),),
       ],
       leading: IconButton(
         icon: const Icon(Icons.menu),

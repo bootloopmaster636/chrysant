@@ -1,25 +1,25 @@
+import 'dart:io';
+
+import 'package:chrysant/data/models/category.dart';
+import 'package:chrysant/data/models/menu.dart';
+import 'package:chrysant/data/models/order.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../models/category.dart';
-import '../models/menu.dart';
-import '../models/order.dart';
-
 class MenuService {
-  late Future<Isar> db;
 
   MenuService() {
     db = openDB();
   }
+  late Future<Isar> db;
 
   Future<Isar> openDB() async {
-    final dir = await getApplicationSupportDirectory();
+    final Directory dir = await getApplicationSupportDirectory();
     if (Isar.instanceNames.isEmpty) {
       return await Isar.open(
-        [MenuSchema, CategorySchema, OrderSchema],
+        <CollectionSchema>[MenuSchema, CategorySchema, OrderSchema],
         directory: dir.path,
-        inspector: true,
       );
     }
 
@@ -28,19 +28,19 @@ class MenuService {
 
   Future<List<Menu>> getAllMenu() async {
     try {
-      final isar = await db;
-      final menu = isar.menus;
+      final Isar isar = await db;
+      final IsarCollection<Menu> menu = isar.menus;
       return menu.where().findAll();
     } catch (e) {
       Logger().e(e.toString());
-      return [];
+      return <Menu>[];
     }
   }
 
   Future<Menu> getMenuById(Id id) async {
     try {
-      final isar = await db;
-      final menu = isar.menus;
+      final Isar isar = await db;
+      final IsarCollection<Menu> menu = isar.menus;
       return menu.where().idEqualTo(id).findFirstSync()!;
     } catch (e) {
       Logger().e(e.toString());
@@ -49,15 +49,12 @@ class MenuService {
   }
 
   Future<void> modifyMenu(
-      {Id? id,
-      required String name,
+      {required String name, required int price, required String category, Id? id,
       String? description,
-      String imagePath = "",
-      required int price,
-      required String category}) async {
+      String imagePath = '',}) async {
     try {
-      final isar = await db;
-      final newMenu = Menu()
+      final Isar isar = await db;
+      final Menu newMenu = Menu()
         ..name = name
         ..description = description
         ..imagePath = imagePath
@@ -78,7 +75,7 @@ class MenuService {
 
   Future<void> deleteMenu(Id id) async {
     try {
-      final isar = await db;
+      final Isar isar = await db;
       await isar.writeTxn(() => isar.menus.delete(id));
     } catch (e) {
       Logger().e(e.toString());
