@@ -8,7 +8,6 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class OrderService {
-
   OrderService() {
     db = openDB();
   }
@@ -50,13 +49,17 @@ class OrderService {
     }
   }
 
-  Future<void> putOrder(
-      {required String name, required List<OrderMenu> items, Id? id,
-      int? tableNumber,
-      bool isDineIn = false,
-      String? note,
-      DateTime? orderedAt,
-      DateTime? paidAt,}) async {
+  Future<void> putOrder({
+    required String name,
+    required List<OrderMenu> items,
+    required int totalPrice,
+    Id? id,
+    int? tableNumber,
+    bool isDineIn = false,
+    String? note,
+    DateTime? orderedAt,
+    DateTime? paidAt,
+  }) async {
     try {
       final Isar isar = await db;
       final Order order = Order()
@@ -66,6 +69,7 @@ class OrderService {
         ..note = note
         ..orderedAt = orderedAt
         ..paidAt = paidAt
+        ..totalPrice = totalPrice
         ..items = items;
 
       if (id != null) {

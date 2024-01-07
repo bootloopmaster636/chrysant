@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 class ModifyOrderPage extends HookConsumerWidget {
@@ -406,6 +407,32 @@ class OrderDetails extends HookConsumerWidget {
       text: mode == ManageMode.add ? '' : tempOrder.value.note,
     );
 
+    final ValueNotifier<String> orderName = useState(customerNameCtl.text);
+    final ValueNotifier<String> orderTableNumber =
+        useState(tableNumberCtl.text);
+    final ValueNotifier<String> orderNote = useState(noteCtl.text);
+
+    useEffect(
+      () {
+        void listener() {
+          orderName.value = customerNameCtl.text;
+          orderTableNumber.value = tableNumberCtl.text;
+          orderNote.value = noteCtl.text;
+        }
+
+        customerNameCtl.addListener(listener);
+        tableNumberCtl.addListener(listener);
+        noteCtl.addListener(listener);
+
+        return () {
+          customerNameCtl.removeListener(listener);
+          tableNumberCtl.removeListener(listener);
+          noteCtl.removeListener(listener);
+        };
+      },
+      <Object?>[],
+    );
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -441,10 +468,10 @@ class OrderDetails extends HookConsumerWidget {
           ),
           const Gap(16),
           ConfirmButton(
-            name: customerNameCtl.text,
-            tableNumber: int.parse(tableNumberCtl.text),
+            name: orderName.value,
+            tableNumber: int.parse(orderTableNumber.value),
             isDineIn: isDiningInCtl.value,
-            note: noteCtl.text,
+            note: orderNote.value,
             tempOrder: tempOrder,
             tempOrderMenu: tempOrderMenu,
             mode: mode,
@@ -494,92 +521,87 @@ class InfoCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
     return Card(
       elevation: 4,
       child: Container(
         padding: const EdgeInsets.all(16),
         width: double.infinity,
-        child: Form(
-          key: formKey,
-          child: Wrap(
-            runSpacing: 8,
-            spacing: 8,
-            children: <Widget>[
-              FractionallySizedBox(
-                widthFactor: 0.48,
-                child: TitledWidget(
-                  title: 'Customer Name',
-                  child: TextFormField(
-                    controller: customerNameCtl,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(8),
-                      border: OutlineInputBorder(),
-                    ),
+        child: Wrap(
+          runSpacing: 8,
+          spacing: 8,
+          children: <Widget>[
+            FractionallySizedBox(
+              widthFactor: 0.48,
+              child: TitledWidget(
+                title: 'Customer Name',
+                child: TextFormField(
+                  controller: customerNameCtl,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.all(8),
+                    border: OutlineInputBorder(),
                   ),
                 ),
               ),
-              FractionallySizedBox(
-                widthFactor: 0.32,
-                child: TitledWidget(
-                  title: 'Table Number',
-                  child: TextFormField(
-                    controller: tableNumberCtl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(8),
-                      border: OutlineInputBorder(),
-                    ),
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
+            ),
+            FractionallySizedBox(
+              widthFactor: 0.32,
+              child: TitledWidget(
+                title: 'Table Number',
+                child: TextFormField(
+                  controller: tableNumberCtl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.all(8),
+                    border: OutlineInputBorder(),
                   ),
-                ),
-              ),
-              FractionallySizedBox(
-                widthFactor: 0.4,
-                child: TitledWidget(
-                  title: 'Order Notes',
-                  child: TextFormField(
-                    controller: noteCtl,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(8),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ),
-              TitledWidget(
-                title: 'Order Type',
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Radio<bool>(
-                      value: true,
-                      groupValue: isDiningInCtl.value,
-                      onChanged: (bool? value) {
-                        isDiningInCtl.value = value!;
-                      },
-                    ),
-                    const Text('Dine In'),
-                    const Gap(8),
-                    Radio<bool>(
-                      value: false,
-                      groupValue: isDiningInCtl.value,
-                      onChanged: (bool? value) {
-                        isDiningInCtl.value = value!;
-                      },
-                    ),
-                    const Text('Take Away'),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+            FractionallySizedBox(
+              widthFactor: 0.4,
+              child: TitledWidget(
+                title: 'Order Notes',
+                child: TextFormField(
+                  controller: noteCtl,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.all(8),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ),
+            TitledWidget(
+              title: 'Order Type',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Radio<bool>(
+                    value: true,
+                    groupValue: isDiningInCtl.value,
+                    onChanged: (bool? value) {
+                      isDiningInCtl.value = value!;
+                    },
+                  ),
+                  const Text('Dine In'),
+                  const Gap(8),
+                  Radio<bool>(
+                    value: false,
+                    groupValue: isDiningInCtl.value,
+                    onChanged: (bool? value) {
+                      isDiningInCtl.value = value!;
+                    },
+                  ),
+                  const Text('Take Away'),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -620,6 +642,9 @@ class ConfirmButton extends ConsumerWidget {
   Widget addOrder(BuildContext context, WidgetRef ref) {
     return FilledButton(
       onPressed: () {
+        Logger().i(
+          'Saving order with name: $name, table number $tableNumber, total price ${tempOrder.value.totalPrice}',
+        );
         final Order inputOrder = Order()
           ..items = tempOrderMenu.value
           ..name = name
@@ -627,11 +652,7 @@ class ConfirmButton extends ConsumerWidget {
           ..isDineIn = isDineIn
           ..note = note
           ..orderedAt = DateTime.now()
-          ..totalPrice = tempOrderMenu.value.fold<int>(
-            0,
-            (int previousValue, OrderMenu element) =>
-                previousValue + element.price,
-          );
+          ..totalPrice = tempOrder.value.totalPrice;
         ref.read(ordersProvider.notifier).putOrder(inputOrder);
         Navigator.pop(context);
       },

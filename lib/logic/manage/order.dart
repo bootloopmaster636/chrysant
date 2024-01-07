@@ -32,6 +32,7 @@ class Orders extends _$Orders {
         note: order.note ?? '',
         orderedAt: order.orderedAt,
         paidAt: order.paidAt,
+        totalPrice: order.totalPrice,
         items: order.items,
       );
       return await _fetchOrders();
