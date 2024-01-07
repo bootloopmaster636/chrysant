@@ -199,35 +199,41 @@ class OrderList extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(ordersProvider).when(
-          data: (List<Order> orders) {
-            return orders.isNotEmpty
-                ? ListView(
-                    children: orders
-                        .map(
-                          (Order order) => Material(
-                            child: InkWell(
-                              onTap: () {
-                                selectedOrderId.value = order.id;
-                              },
-                              child: OrderTile(
-                                order: order,
-                                isSelected: order.id == selectedOrderId.value
-                                    ? true
-                                    : false,
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.refresh(ordersProvider);
+        selectedOrderId.value = -1;
+      },
+      child: ref.watch(ordersProvider).when(
+            data: (List<Order> orders) {
+              return orders.isNotEmpty
+                  ? ListView(
+                      children: orders
+                          .map(
+                            (Order order) => Material(
+                              child: InkWell(
+                                onTap: () {
+                                  selectedOrderId.value = order.id;
+                                },
+                                child: OrderTile(
+                                  order: order,
+                                  isSelected: order.id == selectedOrderId.value
+                                      ? true
+                                      : false,
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                        .toList(),
-                  )
-                : const Center(child: NoOrderAvailableNotif());
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (Object error, StackTrace stackTrace) => const Center(
-            child: Text('Error fetching orders'),
+                          )
+                          .toList(),
+                    )
+                  : const Center(child: NoOrderAvailableNotif());
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (Object error, StackTrace stackTrace) => const Center(
+              child: Text('Error fetching orders'),
+            ),
           ),
-        );
+    );
   }
 }
 

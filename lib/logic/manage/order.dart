@@ -7,7 +7,7 @@ part 'order.g.dart';
 
 @riverpod
 class Orders extends _$Orders {
-  Future<List<Order>> _fetchOrders() async {
+  Future<List<Order>> fetchOrders() async {
     final OrderService service = OrderService();
     final List<Order> orders = await service.getAllOrder();
     return orders;
@@ -15,7 +15,7 @@ class Orders extends _$Orders {
 
   @override
   FutureOr<List<Order>> build() async {
-    return _fetchOrders();
+    return fetchOrders();
   }
 
   Future<void> putOrder(Order order) async {
@@ -35,7 +35,7 @@ class Orders extends _$Orders {
         totalPrice: order.totalPrice,
         items: order.items,
       );
-      return await _fetchOrders();
+      return await fetchOrders();
     });
   }
 
@@ -45,7 +45,7 @@ class Orders extends _$Orders {
     state = await AsyncValue.guard(() async {
       final OrderService service = OrderService();
       await service.deleteOrder(id);
-      return await _fetchOrders();
+      return await fetchOrders();
     });
   }
 }
