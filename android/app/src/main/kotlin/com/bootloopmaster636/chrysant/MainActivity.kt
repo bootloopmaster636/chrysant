@@ -1,4 +1,4 @@
-package com.bootloopmaster636.chrysant.chrysant
+package com.bootloopmaster636.chrysant
 
 import io.flutter.embedding.android.FlutterActivity
 

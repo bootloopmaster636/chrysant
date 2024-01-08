@@ -1,4 +1,4 @@
-import 'package:chrysant/pages/components/workInProgress.dart';
+import 'package:chrysant/pages/components/work_in_progress.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
