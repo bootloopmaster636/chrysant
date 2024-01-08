@@ -16,6 +16,11 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Chrysant',
       theme: ThemeData(
+        brightness: Brightness.light,
+        colorSchemeSeed: Colors.cyan,
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
         brightness: Brightness.dark,
         colorSchemeSeed: Colors.cyan,
         useMaterial3: true,

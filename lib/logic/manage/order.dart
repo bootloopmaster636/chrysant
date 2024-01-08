@@ -39,6 +39,16 @@ class Orders extends _$Orders {
     });
   }
 
+  Future<void> finishOrder(Id id) async {
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() async {
+      final OrderService service = OrderService();
+      await service.deleteOrder(id);
+      return fetchOrders();
+    });
+  }
+
   Future<void> deleteCategory(Id id) async {
     state = const AsyncValue.loading();
 

@@ -17,6 +17,15 @@ class OrdersPage extends HookWidget {
   Widget build(BuildContext context) {
     final ValueNotifier<int> selectedOrderId =
         useState(-1); // selectedOrderId -1 is nothing selected
+
+    useEffect(
+      () {
+        selectedOrderId.value = -1;
+        return null;
+      },
+      <Object?>[selectedOrderId.value],
+    );
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         if (constraints.maxWidth < tabletWidth) {

@@ -9,6 +9,7 @@ import 'package:chrysant/logic/manage/menu.dart';
 import 'package:chrysant/logic/manage/order.dart';
 import 'package:chrysant/pages/components/image_preview.dart';
 import 'package:chrysant/pages/components/titled_widget.dart';
+import 'package:chrysant/pages/orders/payment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -370,8 +371,6 @@ class OrderDetails extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Logger().d(
-        'Order details rebuild! Do tempOrder have listener? ${tempOrder.hasListeners}');
     final TextEditingController customerNameCtl = useTextEditingController(
       text: mode == ManageMode.add ? '' : tempOrder.value.name,
     );
@@ -676,7 +675,25 @@ class ConfirmButton extends ConsumerWidget {
         Expanded(
           flex: 2,
           child: FilledButton(
-            onPressed: () {},
+            onPressed: () {
+              final Order inputOrder = Order()
+                ..id = tempOrder.id
+                ..items = tempOrder.items
+                ..name = name
+                ..tableNumber = tableNumber
+                ..isDineIn = isDineIn
+                ..note = note
+                ..orderedAt = DateTime.now()
+                ..totalPrice = tempOrder.totalPrice;
+              ref.read(ordersProvider.notifier).putOrder(inputOrder);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      PaymentPage(order: inputOrder),
+                ),
+              );
+            },
             child: SizedBox(
               child: Row(
                 children: <Widget>[
