@@ -139,7 +139,7 @@ class PaymentPage extends HookConsumerWidget {
               onPressed: ((money.value - order.totalPrice) >= 0)
                   ? () {
                       ref.read(ordersProvider.notifier).finishOrder(order.id);
-                      Navigator.pop(context);
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     }
                   : null,
               child: const Padding(

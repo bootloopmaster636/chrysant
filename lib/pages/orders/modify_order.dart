@@ -632,7 +632,7 @@ class ConfirmButton extends ConsumerWidget {
           ..totalPrice = tempOrder.totalPrice
           ..items = tempOrder.items;
         ref.read(ordersProvider.notifier).putOrder(inputOrder);
-        Navigator.pop(context);
+        Navigator.of(context).popUntil((route) => route.isFirst);
       },
       child: Row(
         children: <Widget>[
@@ -666,7 +666,7 @@ class ConfirmButton extends ConsumerWidget {
                 ..orderedAt = DateTime.now()
                 ..totalPrice = tempOrder.totalPrice;
               ref.read(ordersProvider.notifier).putOrder(inputOrder);
-              Navigator.pop(context);
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: const Text('Edit Order'),
           ),
