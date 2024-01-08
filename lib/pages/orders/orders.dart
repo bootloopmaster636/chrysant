@@ -209,6 +209,7 @@ class OrderList extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
+      triggerMode: RefreshIndicatorTriggerMode.anywhere,
       onRefresh: () async {
         ref.refresh(ordersProvider);
         selectedOrderId.value = -1;

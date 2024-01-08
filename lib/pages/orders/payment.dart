@@ -15,7 +15,7 @@ class PaymentPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ValueNotifier<double> money = useState<double>(0);
+    final ValueNotifier<int> money = useState<int>(0);
     final TextEditingController moneyInputCtl = useTextEditingController();
 
     useEffect(
@@ -111,7 +111,7 @@ class PaymentPage extends HookConsumerWidget {
                         FilteringTextInputFormatter.digitsOnly,
                       ],
                       onChanged: (String value) {
-                        money.value = double.parse(value);
+                        money.value = int.parse(value);
                       },
                     ),
                   ),
@@ -121,7 +121,7 @@ class PaymentPage extends HookConsumerWidget {
                   child: TitledWidget(
                     title: 'Change:',
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      padding: const EdgeInsets.symmetric(vertical: 6),
                       child: Text(
                         '$currency ${money.value - order.totalPrice}',
                         style: const TextStyle(
@@ -156,14 +156,14 @@ class PaymentPage extends HookConsumerWidget {
 
 class MoneyPresets extends StatelessWidget {
   const MoneyPresets({required this.money, super.key});
-  final ValueNotifier<double> money;
+  final ValueNotifier<int> money;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: bankNotesPreset
           .map(
-            (double element) => Padding(
+            (int element) => Padding(
               padding: const EdgeInsets.only(right: 4),
               child: InputChip(
                 label: Text('$currency $element'),

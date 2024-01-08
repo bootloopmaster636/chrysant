@@ -3,7 +3,7 @@ const int tabletWidth = 600;
 enum ManageMode { add, edit }
 
 const String currency = 'Rp.';
-List<double> bankNotesPreset = <double>[
+List<int> bankNotesPreset = <int>[
   1000,
   2000,
   5000,
