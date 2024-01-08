@@ -24,24 +24,20 @@ class ModifyOrderPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ValueNotifier<Order> tempOrderDetail =
+    final ValueNotifier<Order> tempOrder =
         useState(mode == ManageMode.add ? Order() : currentOrder!);
-    final ValueNotifier<List<OrderMenu>> tempOrderList =
-        useState(mode == ManageMode.add ? <OrderMenu>[] : currentOrder!.items);
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         if (constraints.maxWidth < tabletWidth) {
           return MobileLayout(
             mode: mode,
-            tempOrder: tempOrderDetail,
-            tempOrderMenu: tempOrderList,
+            tempOrder: tempOrder,
           );
         } else {
           return TabletLayout(
             mode: mode,
-            tempOrder: tempOrderDetail,
-            tempOrderMenu: tempOrderList,
+            tempOrder: tempOrder,
           );
         }
       },
@@ -51,12 +47,12 @@ class ModifyOrderPage extends HookConsumerWidget {
 
 class MenuSelector extends ConsumerWidget {
   const MenuSelector({
-    required this.tempOrderMenu,
     required this.tempOrder,
+    required this.mode,
     super.key,
   });
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
   final ValueNotifier<Order> tempOrder;
+  final ManageMode mode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -112,7 +108,7 @@ class MenuSelector extends ConsumerWidget {
                                       return MenuTile(
                                         menu: thisMenu,
                                         tempOrder: tempOrder,
-                                        tempOrderMenu: tempOrderMenu,
+                                        mode: mode,
                                       );
                                     }).toList(),
                                   ),
@@ -138,12 +134,12 @@ class MenuTile extends HookWidget {
   const MenuTile({
     required this.menu,
     required this.tempOrder,
-    required this.tempOrderMenu,
+    required this.mode,
     super.key,
   });
   final Menu menu;
   final ValueNotifier<Order> tempOrder;
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
+  final ManageMode mode;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +231,7 @@ class MenuTile extends HookWidget {
         ItemQuantity(
           menu: menu,
           tempOrder: tempOrder,
-          tempOrderMenu: tempOrderMenu,
+          mode: mode,
         ),
       ],
     );
@@ -246,13 +242,13 @@ class ItemQuantity extends HookConsumerWidget {
   const ItemQuantity({
     required this.menu,
     required this.tempOrder,
-    required this.tempOrderMenu,
+    required this.mode,
     super.key,
   });
 
   final Menu menu;
   final ValueNotifier<Order> tempOrder;
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
+  final ManageMode mode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -277,42 +273,34 @@ class ItemQuantity extends HookConsumerWidget {
             padding: EdgeInsets.zero,
           ),
           onPressed: itemQuantity.value != 0
-              // someone please refactor this high complexity code :)
               ? () {
                   itemQuantity.value--;
-                  // immutable removal to order's menu list
-                  List<OrderMenu> newTempOrderMenu = tempOrderMenu.value;
-                  if (itemQuantity.value > 0) {
-                    newTempOrderMenu =
-                        newTempOrderMenu.map((OrderMenu element) {
-                      if (element.name == menu.name) {
-                        return OrderMenu()
-                          ..name = menu.name
-                          ..price = menu.price * itemQuantity.value
-                          ..quantity = itemQuantity.value;
-                      } else {
-                        return element;
-                      }
-                    }).toList();
-                  } else {
-                    newTempOrderMenu.removeWhere(
-                      (OrderMenu element) => element.name == menu.name,
-                    );
-                  }
-                  tempOrderMenu.value = newTempOrderMenu.toList();
 
-                  // immutable edit of total price
-                  tempOrder.value = Order()
-                    ..name = tempOrder.value.name
-                    ..tableNumber = tempOrder.value.tableNumber
-                    ..isDineIn = tempOrder.value.isDineIn
-                    ..note = tempOrder.value.note
-                    ..items = tempOrderMenu.value
-                    ..totalPrice = tempOrderMenu.value.fold<int>(
-                      0,
-                      (int previousValue, OrderMenu element) =>
-                          previousValue + element.price,
-                    );
+                  if (itemQuantity.value == 0) {
+                    if (mode == ManageMode.add) {
+                      tempOrder.value.items.removeWhere(
+                        (OrderMenu element) => element.name == menu.name,
+                      );
+                    } else {
+                      final List<OrderMenu> newList = <OrderMenu>[];
+                      newList.addAll(tempOrder.value.items);
+                      newList.removeWhere(
+                        (OrderMenu element) => element.name == menu.name,
+                      );
+                      tempOrder.value.items = newList;
+                    }
+                    tempOrder.notifyListeners();
+                    tempOrder.value.totalPrice -= menu.price;
+                  } else {
+                    OrderMenu editItem = tempOrder.value.items
+                        .where((OrderMenu element) => element.name == menu.name)
+                        .first;
+                    editItem
+                      ..quantity = itemQuantity.value
+                      ..price = menu.price * itemQuantity.value;
+                    tempOrder.value.totalPrice -= menu.price;
+                  }
+                  tempOrder.notifyListeners();
                 }
               : null,
           child: const Icon(Icons.remove),
@@ -332,46 +320,36 @@ class ItemQuantity extends HookConsumerWidget {
           onPressed: itemQuantity.value < 99
               ? () {
                   itemQuantity.value++;
-                  // immutable addition to order's menu list
-                  List<OrderMenu> newTempOrderMenu = tempOrderMenu.value;
-                  if (newTempOrderMenu
-                      .where((OrderMenu element) => element.name == menu.name)
-                      .isEmpty) {
-                    // if theres no menu with the same name, add new menu
-                    newTempOrderMenu.add(
-                      OrderMenu()
-                        ..name = menu.name
-                        ..price = menu.price * itemQuantity.value
-                        ..quantity = itemQuantity.value,
-                    );
-                  } else {
-                    // if there's this menu on the list, just edit the menu's quantity
-                    newTempOrderMenu =
-                        newTempOrderMenu.map((OrderMenu element) {
-                      if (element.name == menu.name) {
-                        return OrderMenu()
+                  if (itemQuantity.value == 1) {
+                    if (mode == ManageMode.add) {
+                      tempOrder.value.items.add(
+                        OrderMenu()
                           ..name = menu.name
                           ..price = menu.price * itemQuantity.value
-                          ..quantity = itemQuantity.value;
-                      } else {
-                        return element;
-                      }
-                    }).toList();
+                          ..quantity = itemQuantity.value,
+                      );
+                    } else {
+                      final List<OrderMenu> newList = <OrderMenu>[];
+                      newList.addAll(tempOrder.value.items);
+                      newList.add(
+                        OrderMenu()
+                          ..name = menu.name
+                          ..price = menu.price * itemQuantity.value
+                          ..quantity = itemQuantity.value,
+                      );
+                      tempOrder.value.items = newList;
+                    }
+                    tempOrder.value.totalPrice += menu.price;
+                  } else {
+                    OrderMenu editOrder = tempOrder.value.items
+                        .where((OrderMenu element) => element.name == menu.name)
+                        .first;
+                    editOrder
+                      ..quantity = itemQuantity.value
+                      ..price = menu.price * itemQuantity.value;
+                    tempOrder.value.totalPrice += menu.price;
                   }
-                  tempOrderMenu.value = newTempOrderMenu.toList();
-
-                  // immutable edit of total price
-                  tempOrder.value = Order()
-                    ..name = tempOrder.value.name
-                    ..tableNumber = tempOrder.value.tableNumber
-                    ..isDineIn = tempOrder.value.isDineIn
-                    ..note = tempOrder.value.note
-                    ..items = tempOrderMenu.value
-                    ..totalPrice = tempOrderMenu.value.fold<int>(
-                      0,
-                      (int previousValue, OrderMenu element) =>
-                          previousValue + element.price,
-                    );
+                  tempOrder.notifyListeners();
                 }
               : null,
           child: const Icon(Icons.add),
@@ -384,16 +362,16 @@ class ItemQuantity extends HookConsumerWidget {
 class OrderDetails extends HookConsumerWidget {
   const OrderDetails({
     required this.tempOrder,
-    required this.tempOrderMenu,
     required this.mode,
     super.key,
   });
   final ValueNotifier<Order> tempOrder;
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
   final ManageMode mode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Logger().d(
+        'Order details rebuild! Do tempOrder have listener? ${tempOrder.hasListeners}');
     final TextEditingController customerNameCtl = useTextEditingController(
       text: mode == ManageMode.add ? '' : tempOrder.value.name,
     );
@@ -411,6 +389,8 @@ class OrderDetails extends HookConsumerWidget {
     final ValueNotifier<String> orderTableNumber =
         useState(tableNumberCtl.text);
     final ValueNotifier<String> orderNote = useState(noteCtl.text);
+
+    final Order finalOrder = useValueListenable(tempOrder);
 
     useEffect(
       () {
@@ -456,9 +436,9 @@ class OrderDetails extends HookConsumerWidget {
             style: TextStyle(fontSize: 20),
           ),
           Expanded(
-            child: tempOrderMenu.value.isNotEmpty
+            child: finalOrder.items.isNotEmpty
                 ? ListView(
-                    children: tempOrderMenu.value
+                    children: finalOrder.items
                         .map((OrderMenu e) => OrderedMenuTile(orderMenu: e))
                         .toList(),
                   )
@@ -469,11 +449,12 @@ class OrderDetails extends HookConsumerWidget {
           const Gap(16),
           ConfirmButton(
             name: orderName.value,
-            tableNumber: int.parse(orderTableNumber.value),
+            tableNumber: orderTableNumber.value == ''
+                ? 0
+                : int.parse(orderTableNumber.value),
             isDineIn: isDiningInCtl.value,
             note: orderNote.value,
-            tempOrder: tempOrder,
-            tempOrderMenu: tempOrderMenu,
+            tempOrder: finalOrder,
             mode: mode,
           ),
         ],
@@ -615,7 +596,6 @@ class ConfirmButton extends ConsumerWidget {
     required this.isDineIn,
     required this.note,
     required this.tempOrder,
-    required this.tempOrderMenu,
     required this.mode,
     super.key,
   });
@@ -624,8 +604,7 @@ class ConfirmButton extends ConsumerWidget {
   final int tableNumber;
   final bool isDineIn;
   final String note;
-  final ValueNotifier<Order> tempOrder;
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
+  final Order tempOrder;
   final ManageMode mode;
 
   @override
@@ -643,16 +622,16 @@ class ConfirmButton extends ConsumerWidget {
     return FilledButton(
       onPressed: () {
         Logger().i(
-          'Saving order with name: $name, table number $tableNumber, total price ${tempOrder.value.totalPrice}',
+          'Saving order with name: $name, table number $tableNumber, total price ${tempOrder.totalPrice}',
         );
         final Order inputOrder = Order()
-          ..items = tempOrderMenu.value
           ..name = name
           ..tableNumber = tableNumber
           ..isDineIn = isDineIn
           ..note = note
           ..orderedAt = DateTime.now()
-          ..totalPrice = tempOrder.value.totalPrice;
+          ..totalPrice = tempOrder.totalPrice
+          ..items = tempOrder.items;
         ref.read(ordersProvider.notifier).putOrder(inputOrder);
         Navigator.pop(context);
       },
@@ -660,7 +639,7 @@ class ConfirmButton extends ConsumerWidget {
         children: <Widget>[
           const Text('Add Order'),
           const Spacer(),
-          Text('Total: $currency ${tempOrder.value.totalPrice}'),
+          Text('Total: $currency ${tempOrder.totalPrice}'),
           const Gap(8),
           const Icon(Icons.arrow_forward_ios_rounded),
         ],
@@ -674,7 +653,22 @@ class ConfirmButton extends ConsumerWidget {
       children: <Widget>[
         Expanded(
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              Logger().i(
+                'Editing order id: ${tempOrder.id}, with name: $name, table number $tableNumber, total price ${tempOrder.totalPrice}',
+              );
+              final Order inputOrder = Order()
+                ..id = tempOrder.id
+                ..items = tempOrder.items
+                ..name = name
+                ..tableNumber = tableNumber
+                ..isDineIn = isDineIn
+                ..note = note
+                ..orderedAt = DateTime.now()
+                ..totalPrice = tempOrder.totalPrice;
+              ref.read(ordersProvider.notifier).putOrder(inputOrder);
+              Navigator.pop(context);
+            },
             child: const Text('Edit Order'),
           ),
         ),
@@ -688,7 +682,7 @@ class ConfirmButton extends ConsumerWidget {
                 children: <Widget>[
                   const Text('Pay'),
                   const Spacer(),
-                  Text('Total: $currency ${tempOrder.value.totalPrice}'),
+                  Text('Total: $currency ${tempOrder.totalPrice}'),
                   const Gap(8),
                   const Icon(Icons.payments_outlined),
                 ],
@@ -705,12 +699,9 @@ class TabletLayout extends HookConsumerWidget {
   const TabletLayout({
     required this.mode,
     required this.tempOrder,
-    required this.tempOrderMenu,
-    super.key,
   });
   final ManageMode mode;
   final ValueNotifier<Order> tempOrder;
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -727,7 +718,7 @@ class TabletLayout extends HookConsumerWidget {
               flex: 2,
               child: MenuSelector(
                 tempOrder: tempOrder,
-                tempOrderMenu: tempOrderMenu,
+                mode: mode,
               ),
             ),
             const Gap(8),
@@ -736,7 +727,6 @@ class TabletLayout extends HookConsumerWidget {
                 child: OrderDetails(
                   mode: mode,
                   tempOrder: tempOrder,
-                  tempOrderMenu: tempOrderMenu,
                 ),
               ),
             ),
@@ -751,12 +741,10 @@ class MobileLayout extends HookConsumerWidget {
   const MobileLayout({
     required this.mode,
     required this.tempOrder,
-    required this.tempOrderMenu,
     super.key,
   });
   final ManageMode mode;
   final ValueNotifier<Order> tempOrder;
-  final ValueNotifier<List<OrderMenu>> tempOrderMenu;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -769,7 +757,7 @@ class MobileLayout extends HookConsumerWidget {
         padding: const EdgeInsets.all(8),
         child: MenuSelector(
           tempOrder: tempOrder,
-          tempOrderMenu: tempOrderMenu,
+          mode: mode,
         ),
       ),
       bottomSheet: Ink(
@@ -794,7 +782,6 @@ class MobileLayout extends HookConsumerWidget {
                   child: OrderDetails(
                     mode: mode,
                     tempOrder: tempOrder,
-                    tempOrderMenu: tempOrderMenu,
                   ),
                 );
               },

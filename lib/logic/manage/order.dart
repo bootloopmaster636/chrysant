@@ -35,7 +35,7 @@ class Orders extends _$Orders {
         totalPrice: order.totalPrice,
         items: order.items,
       );
-      return await fetchOrders();
+      return fetchOrders();
     });
   }
 
@@ -45,7 +45,7 @@ class Orders extends _$Orders {
     state = await AsyncValue.guard(() async {
       final OrderService service = OrderService();
       await service.deleteOrder(id);
-      return await fetchOrders();
+      return fetchOrders();
     });
   }
 }

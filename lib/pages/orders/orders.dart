@@ -407,11 +407,11 @@ class OrderDetails extends HookConsumerWidget {
                     ),
                   ),
                   subtitle: Text(
-                    '@ $currency ${order.items[index].price}',
+                    '@ $currency ${order.items[index].price ~/ order.items[index].quantity}',
                     style: const TextStyle(fontSize: 16),
                   ),
                   trailing: Text(
-                    '$currency ${order.items[index].quantity * order.items[index].price}',
+                    '$currency ${order.items[index].price}',
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
