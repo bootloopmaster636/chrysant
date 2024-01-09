@@ -8,7 +8,6 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CategoryService {
-
   CategoryService() {
     db = openDB();
   }

@@ -1,4 +1,4 @@
-import 'package:chrysant/pages/components/work_in_progress.dart';
+import 'package:chrysant/pages/home/settings.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -6,8 +6,23 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: WIP(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => const SettingsPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
+      ),
     );
   }
 }
