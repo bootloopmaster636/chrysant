@@ -30,6 +30,8 @@ dependencies:
   image_picker: ^1.0.5
   text_scroll: ^0.2.0
   flutter_native_splash: ^2.3.9
+  url_launcher: ^6.2.3
+  motion_toast: ^2.7.10
 
 dev_dependencies:
   dependency_validator: ^3.2.3

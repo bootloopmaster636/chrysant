@@ -24,11 +24,16 @@ class SettingsManager extends _$SettingsManager {
     return _fetchSettings();
   }
 
-  Future<void> setThemeMode(ThemeMode themeMode) async {
+  Future<void> setThemeMode(String mode) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
       final SettingsService service = SettingsService();
+      final ThemeMode themeMode = mode == 'System'
+          ? ThemeMode.system
+          : mode == 'Light'
+              ? ThemeMode.light
+              : ThemeMode.dark;
       await service.setThemeMode(themeMode);
       return _fetchSettings();
     });

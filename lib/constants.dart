@@ -12,3 +12,5 @@ List<int> bankNotesPreset = <int>[
   50000,
   100000,
 ];
+
+const String version = '0.2.0';
