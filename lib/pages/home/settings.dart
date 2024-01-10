@@ -37,16 +37,6 @@ class SettingsPage extends HookConsumerWidget {
               children: <Widget>[
                 const SettingsThemeMode(),
                 SettingsTypeString(
-                  title: 'Name',
-                  subtitle: 'Set your name',
-                  hintText: 'Your name',
-                  valueGetter:
-                      ref.read(settingsManagerProvider).value?.name ?? '',
-                  valueSetter: (String value) {
-                    ref.read(settingsManagerProvider.notifier).setName(value);
-                  },
-                ),
-                SettingsTypeString(
                   title: 'Currency',
                   subtitle: 'Type your currency symbol here',
                   hintText: 'Currency symbol',
@@ -56,6 +46,16 @@ class SettingsPage extends HookConsumerWidget {
                     ref
                         .read(settingsManagerProvider.notifier)
                         .setCurrency(value);
+                  },
+                ),
+                SettingsTypeString(
+                  title: 'Name',
+                  subtitle: 'Set your name',
+                  hintText: 'Your name',
+                  valueGetter:
+                      ref.read(settingsManagerProvider).value?.name ?? '',
+                  valueSetter: (String value) {
+                    ref.read(settingsManagerProvider.notifier).setName(value);
                   },
                 ),
                 SettingsTypeString(
