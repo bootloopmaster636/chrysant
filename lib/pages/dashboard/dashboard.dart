@@ -4,7 +4,6 @@ import 'package:chrysant/pages/dashboard/analyticWidgets/todaysOrder.dart';
 import 'package:chrysant/pages/dashboard/settings.dart';
 import 'package:chrysant/pages/utils/greeter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DashboardPage extends HookConsumerWidget {
@@ -12,10 +11,6 @@ class DashboardPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ValueNotifier<String> greeterMessage = useState(
-      '${greeter()}, ${ref.read(settingsManagerProvider).value?.name ?? 'User'}!',
-    );
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80,
@@ -23,12 +18,12 @@ class DashboardPage extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              greeterMessage.value,
+              '${timeGreeter()}, ${ref.read(settingsManagerProvider).value?.name ?? 'User'}!',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            const Text(
-              "How's your day?",
-              style: TextStyle(fontSize: 16),
+            Text(
+              greeter(),
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),
