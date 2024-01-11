@@ -1,0 +1,22 @@
+# flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/logo/full.png"
+
+  android: true
+  adaptive_icon_background: "#bee1fb"
+  adaptive_icon_foreground: "assets/logo/fg_only.png"
+
+  ios: true
+  remove_alpha_ios: true
+
+  web:
+    generate: true
+    background_color: "#bee1fb"
+    theme_color: "#bee1fb"
+
+  windows:
+    generate: true
+    icon_size: 48 # min:48, max:256, default: 48
+
+  macos:
+    generate: true
