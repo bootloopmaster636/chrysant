@@ -1,4 +1,5 @@
 const int tabletWidth = 600;
+const int extendedWidth = 960;
 
 enum ManageMode { add, edit }
 

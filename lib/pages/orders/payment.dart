@@ -1,4 +1,6 @@
 import 'package:chrysant/constants.dart';
+import 'package:chrysant/data/models/archive.dart';
+import 'package:chrysant/logic/manage/archive.dart';
 import 'package:chrysant/pages/components/titled_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -138,7 +140,27 @@ class PaymentPage extends HookConsumerWidget {
             FilledButton(
               onPressed: ((money.value - order.totalPrice) >= 0)
                   ? () {
+                      final List<ArchiveMenu> archiveMenu = <ArchiveMenu>[];
+                      for (final OrderMenu element in order.items) {
+                        archiveMenu.add(
+                          ArchiveMenu()
+                            ..name = element.name
+                            ..price = element.price,
+                        );
+                      }
+                      final Archive archive = Archive()
+                        ..name = order.name
+                        ..id = order.id
+                        ..tableNumber = order.tableNumber
+                        ..orderedAt = order.orderedAt
+                        ..isDineIn = order.isDineIn
+                        ..paidAt = DateTime.now()
+                        ..total = order.totalPrice
+                        ..items = archiveMenu;
                       ref.read(ordersProvider.notifier).finishOrder(order.id);
+                      ref
+                          .read(archiveManagerProvider.notifier)
+                          .addArchive(archive);
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     }
                   : null,

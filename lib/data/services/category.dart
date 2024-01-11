@@ -1,29 +1,13 @@
-import 'dart:io';
-
 import 'package:chrysant/data/models/category.dart';
-import 'package:chrysant/data/models/menu.dart';
-import 'package:chrysant/data/models/order.dart';
+import 'package:chrysant/data/services/utils.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 
 class CategoryService {
   CategoryService() {
     db = openDB();
   }
   late Future<Isar> db;
-
-  Future<Isar> openDB() async {
-    final Directory dir = await getApplicationSupportDirectory();
-    if (Isar.instanceNames.isEmpty) {
-      return await Isar.open(
-        <CollectionSchema>[CategorySchema, MenuSchema, OrderSchema],
-        directory: dir.path,
-      );
-    }
-
-    return Future.value(Isar.getInstance());
-  }
 
   Future<List<Category>> getAllCategories() async {
     try {

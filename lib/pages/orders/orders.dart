@@ -227,9 +227,7 @@ class OrderList extends HookConsumerWidget {
                                 },
                                 child: OrderTile(
                                   order: order,
-                                  isSelected: order.id == selectedOrderId.value
-                                      ? true
-                                      : false,
+                                  isSelected: order.id == selectedOrderId.value,
                                 ),
                               ),
                             ),

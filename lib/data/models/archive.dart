@@ -17,7 +17,5 @@ class Archive {
 @embedded
 class ArchiveMenu {
   String name = '';
-  String? description = '';
   int price = 0;
-  String category = '';
 }

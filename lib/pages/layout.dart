@@ -1,5 +1,5 @@
 import 'package:chrysant/constants.dart';
-import 'package:chrysant/pages/home/home.dart';
+import 'package:chrysant/pages/dashboard/dashboard.dart';
 import 'package:chrysant/pages/menu/menu.dart';
 import 'package:chrysant/pages/orders/orders.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 const List<Widget> contentMain = <Widget>[
-  HomePage(),
+  DashboardPage(),
   OrdersPage(),
   MenuPage(),
 ];
@@ -50,7 +50,9 @@ class MobileAppLayout extends HookConsumerWidget {
         selectedIndex: selectedIndex.value,
         destinations: const <Widget>[
           NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
+            icon: Icon(Icons.dashboard_outlined),
+            label: 'Dashboard',
+          ),
           NavigationDestination(
             icon: Icon(Icons.library_books_outlined),
             label: 'Orders',
