@@ -145,7 +145,8 @@ class PaymentPage extends HookConsumerWidget {
                         archiveMenu.add(
                           ArchiveMenu()
                             ..name = element.name
-                            ..price = element.price,
+                            ..price = element.price
+                            ..quantity = element.quantity,
                         );
                       }
                       final Archive archive = Archive()

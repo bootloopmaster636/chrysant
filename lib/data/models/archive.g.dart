@@ -1094,6 +1094,11 @@ const ArchiveMenuSchema = Schema(
       id: 1,
       name: r'price',
       type: IsarType.long,
+    ),
+    r'quantity': PropertySchema(
+      id: 2,
+      name: r'quantity',
+      type: IsarType.long,
     )
   },
   estimateSize: _archiveMenuEstimateSize,
@@ -1120,6 +1125,7 @@ void _archiveMenuSerialize(
 ) {
   writer.writeString(offsets[0], object.name);
   writer.writeLong(offsets[1], object.price);
+  writer.writeLong(offsets[2], object.quantity);
 }
 
 ArchiveMenu _archiveMenuDeserialize(
@@ -1131,6 +1137,7 @@ ArchiveMenu _archiveMenuDeserialize(
   final object = ArchiveMenu();
   object.name = reader.readString(offsets[0]);
   object.price = reader.readLong(offsets[1]);
+  object.quantity = reader.readLong(offsets[2]);
   return object;
 }
 
@@ -1144,6 +1151,8 @@ P _archiveMenuDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
+      return (reader.readLong(offset)) as P;
+    case 2:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1329,6 +1338,61 @@ extension ArchiveMenuQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'price',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ArchiveMenu, ArchiveMenu, QAfterFilterCondition> quantityEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'quantity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ArchiveMenu, ArchiveMenu, QAfterFilterCondition>
+      quantityGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'quantity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ArchiveMenu, ArchiveMenu, QAfterFilterCondition>
+      quantityLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'quantity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ArchiveMenu, ArchiveMenu, QAfterFilterCondition> quantityBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'quantity',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
