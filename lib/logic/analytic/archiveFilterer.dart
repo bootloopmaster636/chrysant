@@ -27,7 +27,7 @@ Future<List<Archive>> getAllArchiveOnDate(DateTime date) async {
   }
 }
 
-Future<List<Archive>> getAllArchiveContainingMenu(ArchiveMenu menu) async {
+Future<List<Archive>> getAllArchiveContainingMenu(String menuName) async {
   try {
     final IsarCollection<Archive>? archives =
         await ArchiveService().getArchiveCollection();
@@ -40,7 +40,7 @@ Future<List<Archive>> getAllArchiveContainingMenu(ArchiveMenu menu) async {
         .filter()
         .itemsElement(
           (QueryBuilder<ArchiveMenu, ArchiveMenu, QFilterCondition> query) =>
-              query.nameContains(menu.name),
+              query.nameContains(menuName),
         )
         .findAll();
     return archiveThatContainsThisMenu;
