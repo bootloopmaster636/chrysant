@@ -20,24 +20,13 @@ class ArchiveService {
     }
   }
 
-  Future<List<Archive>> getAllArchiveOnDate(DateTime date) async {
+  Future<IsarCollection<Archive>?> getArchiveCollection() async {
     try {
       final Isar isar = await db;
       final IsarCollection<Archive> archives = isar.archives;
-
-      final DateTime dateLowerBound = DateTime(
-        date.year,
-        date.month,
-        date.day,
-      ); // it automatically set to 00:00:00 o'clock
-      final DateTime dateUpperBound =
-          DateTime(date.year, date.month, date.day, 23, 59, 59);
-      return archives
-          .filter()
-          .paidAtBetween(dateLowerBound, dateUpperBound)
-          .findAll();
+      return archives;
     } catch (e) {
-      return <Archive>[];
+      return null;
     }
   }
 

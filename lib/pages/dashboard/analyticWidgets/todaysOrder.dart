@@ -1,4 +1,4 @@
-import 'package:chrysant/logic/manage/archive.dart';
+import 'package:chrysant/logic/analytic/analytic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -8,8 +8,7 @@ class TodaysOrderCounter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Future<int> noOfOrders =
-        ArchiveUtils.countArchivesOnDate(DateTime.now());
+    final Future<int> noOfOrders = countArchivesOnDate(DateTime.now());
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,

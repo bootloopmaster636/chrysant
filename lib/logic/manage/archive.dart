@@ -36,11 +36,3 @@ class ArchiveManager extends _$ArchiveManager {
     });
   }
 }
-
-class ArchiveUtils {
-  static Future<int> countArchivesOnDate(DateTime date) async {
-    final ArchiveService service = ArchiveService();
-    final List<Archive> archiveList = await service.getAllArchiveOnDate(date);
-    return archiveList.length;
-  }
-}
