@@ -27,6 +27,22 @@ Future<List<Archive>> getAllArchiveOnDate(DateTime date) async {
   }
 }
 
+Future<List<Archive>> getAllArchiveBetweenDate(
+    DateTime rangeMin, DateTime rangeMax) async {
+  try {
+    final IsarCollection<Archive>? archives =
+        await ArchiveService().getArchiveCollection();
+
+    if (archives == null) {
+      throw Exception('Archive collection is not found');
+    }
+
+    return archives.filter().paidAtBetween(rangeMin, rangeMax).findAll();
+  } catch (e) {
+    return <Archive>[];
+  }
+}
+
 Future<List<Archive>> getAllArchiveContainingMenu(String menuName) async {
   try {
     final IsarCollection<Archive>? archives =

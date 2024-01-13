@@ -1,7 +1,6 @@
 import 'package:chrysant/data/models/archive.dart';
 import 'package:chrysant/data/services/archive.dart';
 import 'package:chrysant/logic/analytic/archiveFilterer.dart';
-import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 
 Future<int> countArchivesOnDate(DateTime date) async {
@@ -9,7 +8,10 @@ Future<int> countArchivesOnDate(DateTime date) async {
   return archiveList.length;
 }
 
-Future<(String, int)> getMenuPopularity(String menuName) async {
+Future<List<(String, int)>> getMenuPopularity(
+  DateTime rangeMin,
+  DateTime rangeMax,
+) async {
   try {
     final IsarCollection<Archive>? archives =
         await ArchiveService().getArchiveCollection();
@@ -18,31 +20,33 @@ Future<(String, int)> getMenuPopularity(String menuName) async {
       throw Exception('Archive collection is not found');
     }
 
-    final List<Archive> filteredArchive =
-        await getAllArchiveContainingMenu(menuName);
+    final List<Archive> archiveOnDateBetween =
+        await getAllArchiveBetweenDate(rangeMin, rangeMax);
+    List<(String, int)> counted = <(String, int)>[];
 
-    // move this computationally intensive task to different isolate
-    final Map arguments = Map();
-    arguments['filteredArchive'] = filteredArchive;
-    arguments['menuName'] = menuName;
-    final int quantityCount = await compute(computeMenuCount, arguments);
-
-    return (menuName, quantityCount);
-  } catch (e) {
-    return (e.toString(), 0);
-  }
-}
-
-int computeMenuCount(Map arguments) {
-  final List<Archive> filteredArchive =
-      arguments['filteredArchive'] as List<Archive>;
-  final String menuName = arguments['menuName'] as String;
-  int quantityCount = 0;
-
-  for (final Archive element in filteredArchive) {
-    for (final ArchiveMenu element in element.items) {
-      if (element.name == menuName) quantityCount += element.quantity;
+    // TODO(bootloopmaster636): need to refactor this sometime because it's inefficient
+    for (final Archive archive in archiveOnDateBetween) {
+      for (final ArchiveMenu menu in archive.items) {
+        // if this counter list doesn't have this menu, add it to the list
+        // else just increment its counter
+        if (counted
+            .where(((String, int) element) => element.$1 == menu.name)
+            .isEmpty) {
+          counted.add((menu.name, menu.quantity));
+        } else {
+          counted = counted.map(((String, int) element) {
+            if (element.$1 == menu.name) {
+              return (element.$1, element.$2 + menu.quantity);
+            } else {
+              return element;
+            }
+          }).toList();
+        }
+      }
     }
+
+    return counted;
+  } catch (e) {
+    throw Exception('Something went wrong in counting menu popularity');
   }
-  return quantityCount;
 }
