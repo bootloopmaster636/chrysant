@@ -1,5 +1,6 @@
 import 'package:chrysant/constants.dart';
 import 'package:chrysant/logic/manage/settings.dart';
+import 'package:chrysant/pages/dashboard/analyticWidgets/menuPopularity.dart';
 import 'package:chrysant/pages/dashboard/analyticWidgets/todaysOrder.dart';
 import 'package:chrysant/pages/dashboard/settings.dart';
 import 'package:chrysant/pages/utils/greeter.dart';
@@ -51,6 +52,7 @@ class DashboardPage extends HookConsumerWidget {
             alignment: WrapAlignment.spaceBetween,
             children: <Widget>[
               SmallWidgetContainer(child: TodaysOrderCounter()),
+              WideWidgetContainer(child: MenuPopularityWidget()),
             ],
           ),
         ),
